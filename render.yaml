@@ -1,0 +1,48 @@
+# Render Blueprint for Nels-Bus (repo root).
+# Root Directory for the web service: Nelsaproject/
+# Repo: https://github.com/DohNelsa/Nels-Bus
+
+databases:
+  - name: garanti-db
+    databaseName: garanti
+    user: garanti
+    plan: free
+
+services:
+  - type: web
+    name: garanti-express
+    runtime: python
+    region: oregon
+    plan: free
+    rootDir: Nelsaproject
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: python manage.py migrate --noinput && gunicorn Nelsaproject.wsgi:application --bind 0.0.0.0:$PORT --timeout 120 --graceful-timeout 30
+    envVars:
+      - key: DEPLOYMENT_ENV
+        value: production
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: garanti-db
+          property: connectionString
+      - key: ALLOWED_HOSTS
+        value: .onrender.com
+      - key: CSRF_TRUSTED_ORIGINS
+        value: https://*.onrender.com
+      - key: COMPANY_NAME
+        value: GARANTI EXPRESS
+      - key: COMPANY_SUPPORT_PHONE
+        value: "+237675315422"
+      - key: WHATSAPP_ADMIN_HANDOFF
+        value: "True"
+      - key: WHATSAPP_PROVIDER
+        value: mock
+      - key: NOTIFICATION_FLUSH_JOBS_INLINE
+        value: "True"
+      - key: PAYMENT_PROVIDER
+        value: manual
