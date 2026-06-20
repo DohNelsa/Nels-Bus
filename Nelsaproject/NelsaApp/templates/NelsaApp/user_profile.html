@@ -1,0 +1,227 @@
+{% extends 'NelsaApp/base.html' %}
+{% load static %}
+{% load currency %}
+
+{% block title %}My profile — GARANTI EXPRESS{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-50 pt-20 pb-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Page header -->
+        <div class="mb-8 lg:mb-10">
+            <p class="text-xs font-semibold uppercase tracking-wider text-blue-600">Account</p>
+            <h1 class="mt-1 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">My profile</h1>
+            <p class="mt-2 text-slate-600 max-w-2xl">Manage your details and review your bookings in one place.</p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
+            <!-- Sidebar -->
+            <aside class="lg:col-span-4 space-y-6">
+                <div class="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-lg shadow-slate-900/5">
+                    <div class="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-950 px-6 py-8 text-center">
+                        <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-white/15 text-white shadow-lg ring-2 ring-white/20">
+                            <i class="fas fa-user text-3xl" aria-hidden="true"></i>
+                        </div>
+                        <h2 class="mt-4 text-lg font-bold text-white">{{ user.get_full_name|default:user.username }}</h2>
+                        <p class="mt-1 text-sm text-blue-100/90 break-all">{{ user.email }}</p>
+                        <span class="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-blue-100">
+                            <i class="fas fa-calendar-alt opacity-80" aria-hidden="true"></i>
+                            Member since {{ user.date_joined|date:"M Y" }}
+                        </span>
+                    </div>
+                    <div class="border-t border-slate-100 px-6 py-5 space-y-4">
+                        <div class="flex items-start gap-3 rounded-xl bg-slate-50 px-4 py-3">
+                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                                <i class="fas fa-phone" aria-hidden="true"></i>
+                            </span>
+                            <div class="min-w-0">
+                                <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Phone</p>
+                                <p class="text-sm font-semibold text-slate-900">{% if passenger %}{{ passenger.phone|default:"Not provided" }}{% else %}Not provided{% endif %}</p>
+                            </div>
+                        </div>
+                        <a href="{% url 'profile_edit' %}" class="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 transition-colors">
+                            <i class="fas fa-pen" aria-hidden="true"></i>
+                            Edit profile
+                        </a>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-slate-900/5">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500">Booking overview</h3>
+                    <div class="mt-4 grid grid-cols-2 gap-3">
+                        <div class="rounded-xl border border-slate-100 bg-slate-50/80 px-4 py-3 text-center">
+                            <p class="text-2xl font-extrabold text-slate-900">{{ total_bookings }}</p>
+                            <p class="text-xs font-medium text-slate-500">Total</p>
+                        </div>
+                        <div class="rounded-xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 text-center">
+                            <p class="text-2xl font-extrabold text-emerald-700">{{ confirmed_bookings }}</p>
+                            <p class="text-xs font-medium text-emerald-800/80">Confirmed</p>
+                        </div>
+                        <div class="rounded-xl border border-amber-100 bg-amber-50/80 px-4 py-3 text-center">
+                            <p class="text-2xl font-extrabold text-amber-700">{{ pending_bookings }}</p>
+                            <p class="text-xs font-medium text-amber-800/80">Pending</p>
+                        </div>
+                        <div class="rounded-xl border border-red-100 bg-red-50/80 px-4 py-3 text-center">
+                            <p class="text-2xl font-extrabold text-red-700">{{ cancelled_bookings }}</p>
+                            <p class="text-xs font-medium text-red-800/80">Cancelled</p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main: bookings -->
+            <div class="lg:col-span-8">
+                <div class="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-lg shadow-slate-900/5">
+                    <div class="flex flex-col gap-4 border-b border-slate-100 bg-slate-50/50 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/25">
+                                <i class="fas fa-ticket-alt" aria-hidden="true"></i>
+                            </span>
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900">My bookings</h2>
+                                <p class="text-sm text-slate-500">Search and filter your trips</p>
+                            </div>
+                        </div>
+                        <a href="{% url 'booking' %}" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-plus text-xs" aria-hidden="true"></i>
+                            New booking
+                        </a>
+                    </div>
+
+                    <form method="get" class="border-b border-slate-100 bg-white px-6 py-4">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+                            <div class="min-w-0 flex-1 sm:min-w-[200px]">
+                                <label for="id-search" class="block text-xs font-medium text-slate-500 mb-1">Search</label>
+                                <input id="id-search" type="text" name="search" value="{{ search_query }}" placeholder="Route, bus number…"
+                                       class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                            </div>
+                            <div class="w-full sm:w-40">
+                                <label for="id-status" class="block text-xs font-medium text-slate-500 mb-1">Status</label>
+                                <select id="id-status" name="status" class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                                    <option value="">All</option>
+                                    <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+                                    <option value="Confirmed" {% if status_filter == 'Confirmed' %}selected{% endif %}>Confirmed</option>
+                                    <option value="Cancelled" {% if status_filter == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                                </select>
+                            </div>
+                            <div class="w-full sm:w-44">
+                                <label for="id-date" class="block text-xs font-medium text-slate-500 mb-1">Travel date</label>
+                                <input id="id-date" type="date" name="date" value="{{ date_filter }}"
+                                       class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                            </div>
+                            <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-slate-800 sm:w-auto">
+                                <i class="fas fa-search text-xs" aria-hidden="true"></i>
+                                Apply
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="p-0 sm:p-1">
+                        {% if booking_groups %}
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+                                <thead>
+                                    <tr class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                        <th class="whitespace-nowrap px-4 py-3">Booking ID</th>
+                                        <th class="px-4 py-3">Route</th>
+                                        <th class="whitespace-nowrap px-4 py-3">Date &amp; time</th>
+                                        <th class="whitespace-nowrap px-4 py-3">Seats</th>
+                                        <th class="whitespace-nowrap px-4 py-3">Amount</th>
+                                        <th class="whitespace-nowrap px-4 py-3">Status</th>
+                                        <th class="whitespace-nowrap px-4 py-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 bg-white">
+                                    {% for booking_group in booking_groups %}
+                                    <tr class="hover:bg-slate-50/80 transition-colors">
+                                        <td class="whitespace-nowrap px-4 py-3 align-top">
+                                            <span class="inline-flex rounded-md bg-slate-100 px-2 py-0.5 font-mono text-xs font-semibold text-slate-800">#{{ booking_group.id }}</span>
+                                        </td>
+                                        <td class="max-w-[220px] px-4 py-3 align-top">
+                                            <div class="font-semibold text-slate-900 leading-snug">{{ booking_group.schedule.route.start_location }} → {{ booking_group.schedule.route.end_location }}</div>
+                                            <div class="mt-1 text-xs text-slate-500">Bus {{ booking_group.schedule.bus.bus_number }} · {{ booking_group.schedule.bus.bus_type }}</div>
+                                        </td>
+                                        <td class="whitespace-nowrap px-4 py-3 align-top">
+                                            <div class="font-medium text-slate-900">{{ booking_group.schedule.departure_time|date:"M j, Y" }}</div>
+                                            <div class="text-xs text-slate-500">{{ booking_group.schedule.departure_time|date:"g:i A" }}</div>
+                                        </td>
+                                        <td class="px-4 py-3 align-top">
+                                            <div class="font-medium text-slate-900">{{ booking_group.get_total_seats }} seat(s)</div>
+                                            <div class="font-mono text-xs text-slate-500">{{ booking_group.get_seat_numbers|join:", " }}</div>
+                                        </td>
+                                        <td class="whitespace-nowrap px-4 py-3 align-top font-semibold text-slate-900">{{ booking_group.total_amount|fcfa }} <span class="text-xs font-normal text-slate-500">FCFA</span></td>
+                                        <td class="px-4 py-3 align-top">
+                                            {% if booking_group.status == 'Confirmed' %}
+                                            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800"><i class="fas fa-check text-[10px]"></i> Confirmed</span>
+                                            {% elif booking_group.status == 'Pending' %}
+                                            <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800"><i class="fas fa-clock text-[10px]"></i> Pending</span>
+                                            {% else %}
+                                            <span class="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-800"><i class="fas fa-times text-[10px]"></i> Cancelled</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="px-4 py-3 align-top">
+                                            <div class="flex flex-col gap-2 min-w-[140px]">
+                                                <a href="{% url 'booking_success' %}?bg={{ booking_group.id }}" class="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                                                    <i class="fas fa-receipt text-[10px]"></i> Receipt
+                                                </a>
+                                                {% if booking_group.status == 'Pending' %}
+                                                <a href="{% url 'payment' booking_group.id %}" class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700">
+                                                    <i class="fas fa-credit-card text-[10px]"></i> Pay
+                                                </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {% if booking_groups.has_other_pages %}
+                        <nav class="flex flex-wrap items-center justify-center gap-2 border-t border-slate-100 px-4 py-4" aria-label="Booking pagination">
+                            {% if booking_groups.has_previous %}
+                            <a class="inline-flex h-9 min-w-[2.25rem] items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50" href="?page={{ booking_groups.previous_page_number }}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}{% if status_filter %}&status={{ status_filter|urlencode }}{% endif %}{% if date_filter %}&date={{ date_filter|urlencode }}{% endif %}">
+                                <i class="fas fa-chevron-left text-xs"></i>
+                            </a>
+                            {% endif %}
+                            {% for num in booking_groups.paginator.page_range %}
+                                {% if booking_groups.number == num %}
+                                <span class="inline-flex h-9 min-w-[2.25rem] items-center justify-center rounded-lg bg-blue-600 px-3 text-sm font-semibold text-white">{{ num }}</span>
+                                {% elif num > booking_groups.number|add:'-3' and num < booking_groups.number|add:'3' %}
+                                <a class="inline-flex h-9 min-w-[2.25rem] items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50" href="?page={{ num }}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}{% if status_filter %}&status={{ status_filter|urlencode }}{% endif %}{% if date_filter %}&date={{ date_filter|urlencode }}{% endif %}">{{ num }}</a>
+                                {% endif %}
+                            {% endfor %}
+                            {% if booking_groups.has_next %}
+                            <a class="inline-flex h-9 min-w-[2.25rem] items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50" href="?page={{ booking_groups.next_page_number }}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}{% if status_filter %}&status={{ status_filter|urlencode }}{% endif %}{% if date_filter %}&date={{ date_filter|urlencode }}{% endif %}">
+                                <i class="fas fa-chevron-right text-xs"></i>
+                            </a>
+                            {% endif %}
+                        </nav>
+                        {% endif %}
+
+                        {% else %}
+                        <div class="px-6 py-16 text-center">
+                            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                                <i class="fas fa-ticket-alt text-2xl" aria-hidden="true"></i>
+                            </div>
+                            <h3 class="mt-6 text-lg font-bold text-slate-900">No bookings found</h3>
+                            <p class="mt-2 text-sm text-slate-600 max-w-md mx-auto">
+                                {% if search_query or status_filter or date_filter %}
+                                Nothing matches your filters. Try clearing search or changing the date.
+                                {% else %}
+                                You have not booked a trip yet. Start by choosing a route and seats.
+                                {% endif %}
+                            </p>
+                            <a href="{% url 'booking' %}" class="mt-8 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-600/25 hover:bg-blue-700">
+                                <i class="fas fa-plus"></i>
+                                Book a trip
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

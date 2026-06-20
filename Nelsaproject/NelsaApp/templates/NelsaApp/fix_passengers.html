@@ -1,0 +1,112 @@
+{% extends 'NelsaApp/base.html' %}
+{% load static %}
+
+{% block title %}Fix Duplicate Passengers - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="pt-20 pb-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Fix Duplicate Passengers</h1>
+            <p class="mt-2 text-gray-600">Identify and fix passengers with duplicate or generic names</p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow-sm border">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-users text-blue-600 text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Total Passengers</h3>
+                        <p class="text-2xl font-bold text-blue-600">{{ total_passengers }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-sm border">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-yellow-600 text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Generic Names</h3>
+                        <p class="text-2xl font-bold text-yellow-600">{{ generic_passengers }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-sm border">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-copy text-red-600 text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Duplicate Names</h3>
+                        <p class="text-2xl font-bold text-red-600">{{ duplicate_names }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fix Button -->
+        {% if generic_passengers > 0 %}
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-triangle text-yellow-600 text-xl mr-3"></i>
+                <div>
+                    <h3 class="text-lg font-semibold text-yellow-800">Action Required</h3>
+                    <p class="text-yellow-700 mt-1">
+                        Found {{ generic_passengers }} passengers with generic names that need to be fixed.
+                    </p>
+                </div>
+            </div>
+            
+            <form method="POST" class="mt-4">
+                {% csrf_token %}
+                <button type="submit" class="bg-yellow-600 text-white px-6 py-3 rounded-lg hover:bg-yellow-700 transition-colors duration-200 font-semibold">
+                    <i class="fas fa-tools mr-2"></i>
+                    Fix Generic Names
+                </button>
+            </form>
+        </div>
+        {% else %}
+        <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle text-green-600 text-xl mr-3"></i>
+                <div>
+                    <h3 class="text-lg font-semibold text-green-800">All Good!</h3>
+                    <p class="text-green-700 mt-1">
+                        No passengers with generic names found. All passenger records are properly identified.
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Information Section -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-blue-900 mb-3">
+                <i class="fas fa-info-circle mr-2"></i>
+                How This Works
+            </h3>
+            <div class="text-blue-800 space-y-2">
+                <p>• <strong>Generic Names:</strong> Passengers with names like "Doh Derick", "N/A", or empty names</p>
+                <p>• <strong>Fix Process:</strong> Updates generic names with unique identifiers using username and user ID</p>
+                <p>• <strong>User Association:</strong> Links passenger records to their corresponding user accounts</p>
+                <p>• <strong>Future Bookings:</strong> New bookings will automatically use unique identifiers</p>
+            </div>
+        </div>
+
+        <!-- Back to Admin -->
+        <div class="mt-8">
+            <a href="{% url 'admin_bookings' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back to Bookings
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

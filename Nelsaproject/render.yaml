@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: garanti-express
+    env: python
+    region: oregon  # Change to your preferred region
+    plan: free  # Change to 'starter' or 'standard' for production
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    # Migrate at start so PostgreSQL tables exist (booking/routes query DB; homepage does not).
+    startCommand: python manage.py migrate --noinput && gunicorn Nelsaproject.wsgi:application --bind 0.0.0.0:$PORT --timeout 120 --graceful-timeout 30
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        sync: false  # You'll need to set this manually in Render dashboard
+      - key: DJANGO_DEBUG
+        value: False
+      - key: ALLOWED_HOSTS
+        sync: false  # You'll need to set this to your Render domain after deployment
+      - key: CSRF_TRUSTED_ORIGINS
+        sync: false  # You'll need to set this to https://your-app.onrender.com after deployment
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      # Live SMS (Twilio) — set in dashboard: SMS_ENABLED, SMS_PROVIDER=twilio, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER
+
+

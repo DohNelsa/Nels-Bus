@@ -1,0 +1,823 @@
+{% extends 'NelsaApp/base.html' %}
+{% load static %}
+{% load currency %}
+
+{% block title %}Admin Reports - NelsaNdo{% endblock %}
+
+{% block content %}
+<div class="admin-reports">
+    <div class="admin-header">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h1>System Reports</h1>
+                <p>Comprehensive analytics and insights for your bus management system</p>
+            </div>
+            <a href="{% url 'admin_dashboard' %}" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Report Type Selector -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
+        <div class="p-6">
+            <form method="GET" action="{% url 'admin_reports' %}" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div>
+                    <label for="type" class="block text-sm font-medium text-gray-700">Report Type</label>
+                    <select name="type" id="type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="revenue" {% if report_type == 'revenue' %}selected{% endif %}>Daily Revenue Report</option>
+                        <option value="bookings" {% if report_type == 'bookings' %}selected{% endif %}>Booking Reports</option>
+                        <option value="buses" {% if report_type == 'buses' %}selected{% endif %}>Bus Reports</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="date_from" class="block text-sm font-medium text-gray-700">From Date</label>
+                    <input type="date" name="date_from" id="date_from" value="{{ date_from }}" 
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="date_to" class="block text-sm font-medium text-gray-700">To Date</label>
+                    <input type="date" name="date_to" id="date_to" value="{{ date_to }}" 
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <i class="fas fa-search mr-2"></i>Generate Report
+                    </button>
+                </div>
+                <div class="flex items-end">
+                    <a href="{% url 'admin_reports' %}" class="w-full bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 text-center">
+                        <i class="fas fa-refresh mr-2"></i>Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Report Content -->
+    {% if report_type == 'revenue' %}
+        <!-- Daily Revenue Report -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-900">Daily Revenue Report</h2>
+                    <div class="text-sm text-gray-500">
+                        Generated on: {{ report_data.report_generated_date }}
+                    </div>
+                </div>
+                
+                <!-- Revenue Summary -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <div class="text-sm font-medium text-blue-600">Total Revenue</div>
+                        <div class="text-2xl font-bold text-blue-900">{{ report_data.total_revenue|fcfa }} FCFA</div>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <div class="text-sm font-medium text-green-600">Total Bookings</div>
+                        <div class="text-2xl font-bold text-green-900">{{ report_data.bookings_count }}</div>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-lg">
+                        <div class="text-sm font-medium text-purple-600">Avg per Booking</div>
+                        <div class="text-2xl font-bold text-purple-900">{{ report_data.avg_revenue_per_booking|fcfa }} FCFA</div>
+                    </div>
+                    <div class="bg-orange-50 p-4 rounded-lg">
+                        <div class="text-sm font-medium text-orange-600">All Time Revenue</div>
+                        <div class="text-2xl font-bold text-orange-900">{{ report_data.total_revenue_all_time|fcfa }} FCFA</div>
+                    </div>
+                </div>
+
+                <!-- Daily Revenue Breakdown -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Daily Revenue Breakdown</h3>
+                    {% if report_data.daily_revenue %}
+                        {% for day_data in report_data.daily_revenue %}
+                        <div class="border rounded-lg mb-4 overflow-hidden">
+                            <div class="bg-gray-50 px-4 py-3 border-b">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900">{{ day_data.date|date:"l, F d, Y" }}</h4>
+                                        <p class="text-sm text-gray-600">{{ day_data.passenger_count }} passengers</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-xl font-bold text-green-600">{{ day_data.total_revenue|fcfa }} FCFA</div>
+                                        <div class="text-sm text-gray-500">Daily Total</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Daily Bookings Table -->
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Passenger</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bus</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Route</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seat</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        {% for booking in day_data.bookings %}
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-4 py-3 whitespace-nowrap">
+                                                <div>
+                                                    <div class="text-sm font-medium text-gray-900">{{ booking.passenger_name }}</div>
+                                                    <div class="text-sm text-gray-500">{{ booking.passenger_email }}</div>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap">
+                                                <div>
+                                                    <div class="text-sm font-medium text-gray-900">{{ booking.bus_number }}</div>
+                                                    <div class="text-sm text-gray-500">{{ booking.bus_type }}</div>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ booking.route }}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ booking.seat_number }}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ booking.booking_time }}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium text-green-600">{{ booking.amount|fcfa }} FCFA</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-8">
+                            <i class="fas fa-chart-line text-gray-400 text-4xl mb-4"></i>
+                            <p class="text-gray-500">No revenue data available for the selected period</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Revenue by Route and Bus Type -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Top Routes by Revenue -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">Top Routes by Revenue</h4>
+                        {% if report_data.top_routes_by_revenue %}
+                        <div class="space-y-3">
+                            {% for route_data in report_data.top_routes_by_revenue %}
+                            <div class="flex justify-between items-center p-3 bg-white rounded-lg">
+                                <div class="text-sm font-medium text-gray-900">{{ route_data.route }}</div>
+                                <div class="text-sm font-semibold text-green-600">{{ route_data.revenue|fcfa }} FCFA</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-gray-500 text-center py-4">No route data available</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Revenue by Bus Type -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4">Revenue by Bus Type</h4>
+                        {% if report_data.bus_type_revenue %}
+                        <div class="space-y-3">
+                            {% for bus_type, revenue in report_data.bus_type_revenue.items %}
+                            <div class="flex justify-between items-center p-3 bg-white rounded-lg">
+                                <div class="text-sm font-medium text-gray-900">{{ bus_type }}</div>
+                                <div class="text-sm font-semibold text-blue-600">{{ revenue|fcfa }} FCFA</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-gray-500 text-center py-4">No bus type data available</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% elif report_type == 'bookings' %}
+        <!-- Booking Reports -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Booking Statistics -->
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Booking Statistics</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Total Bookings</span>
+                            <span class="font-semibold text-2xl text-blue-600">{{ report_data.total_bookings }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Confirmed</span>
+                            <span class="font-semibold text-2xl text-green-600">{{ report_data.confirmed_bookings }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Pending</span>
+                            <span class="font-semibold text-2xl text-yellow-600">{{ report_data.pending_bookings }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Cancelled</span>
+                            <span class="font-semibold text-2xl text-red-600">{{ report_data.cancelled_bookings }}</span>
+                        </div>
+                        {% if date_from or date_to %}
+                        <div class="border-t pt-4">
+                            <div class="text-sm font-medium text-gray-700 mb-2">In Selected Period:</div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600">Total</span>
+                                    <span class="font-semibold">{{ report_data.bookings_in_period }}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600">Confirmed</span>
+                                    <span class="font-semibold text-green-600">{{ report_data.confirmed_in_period }}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600">Pending</span>
+                                    <span class="font-semibold text-yellow-600">{{ report_data.pending_in_period }}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600">Cancelled</span>
+                                    <span class="font-semibold text-red-600">{{ report_data.cancelled_in_period }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Popular Routes -->
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Popular Routes</h3>
+                    {% if report_data.popular_routes %}
+                    <div class="space-y-3">
+                        {% for route_data in report_data.popular_routes %}
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="text-sm font-medium text-gray-900">{{ route_data.route }}</div>
+                            <div class="text-sm font-semibold text-blue-600">{{ route_data.count }} bookings</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-8">
+                        <i class="fas fa-route text-gray-400 text-4xl mb-4"></i>
+                        <p class="text-gray-500">No route data available</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Booking Trends Chart -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Daily Booking Trends (Last 30 Days)</h3>
+                <div class="h-64 flex items-end justify-between space-x-1">
+                    {% for day in report_data.daily_bookings %}
+                    <div class="flex-1 bg-blue-200 rounded-t" style="height: {% widthratio day.count 1 20 %}px;" title="{{ day.date }}: {{ day.count }} bookings">
+                        <div class="text-xs text-center text-gray-600 mt-1">{{ day.count }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-center text-sm text-gray-500 mt-2">Daily bookings over the last 30 days</div>
+            </div>
+        </div>
+
+    {% elif report_type == 'buses' %}
+        <!-- Bus Reports -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Bus Statistics -->
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Bus Statistics</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Total Buses</span>
+                            <span class="font-semibold text-2xl text-blue-600">{{ report_data.total_buses }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Available</span>
+                            <span class="font-semibold text-2xl text-green-600">{{ report_data.available_buses }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Luxury</span>
+                            <span class="font-semibold text-2xl text-purple-600">{{ report_data.luxury_buses }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Standard</span>
+                            <span class="font-semibold text-2xl text-orange-600">{{ report_data.standard_buses }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Express</span>
+                            <span class="font-semibold text-2xl text-red-600">{{ report_data.express_buses }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bus Type Performance -->
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Bus Type Performance</h3>
+                    {% for bus_type, stats in report_data.bus_type_stats.items %}
+                    <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-medium text-gray-900">{{ bus_type }}</span>
+                            <span class="text-sm text-gray-500">{{ stats.count }} buses</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Total Bookings</span>
+                            <span class="font-semibold text-blue-600">{{ stats.bookings }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Avg per Bus</span>
+                            <span class="font-semibold text-green-600">{{ stats.avg_bookings|floatformat:1 }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Buses by Utilization -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Buses by Utilization</h3>
+                {% if report_data.bus_utilization %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bus</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bookings</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilization</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for bus_data in report_data.bus_utilization %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ bus_data.bus.bus_number }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ bus_data.bus.bus_type }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ bus_data.bookings_count }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                            <div class="bg-blue-600 h-2 rounded-full" style="width: {{ bus_data.utilization_percentage }}%"></div>
+                                        </div>
+                                        <span class="text-sm text-gray-900">{{ bus_data.utilization_percentage }}%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-bus text-gray-400 text-4xl mb-4"></i>
+                    <p class="text-gray-500">No bus utilization data available</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .admin-reports {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .admin-header {
+        margin-bottom: 2rem;
+    }
+
+    .admin-header h1 {
+        color: #2c3e50;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .admin-header p {
+        color: #7f8c8d;
+        font-size: 1.1rem;
+    }
+
+    .bg-white {
+        background-color: white;
+    }
+
+    .rounded-lg {
+        border-radius: 0.5rem;
+    }
+
+    .shadow-sm {
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .overflow-hidden {
+        overflow: hidden;
+    }
+
+    .mb-6 {
+        margin-bottom: 1.5rem;
+    }
+
+    .p-6 {
+        padding: 1.5rem;
+    }
+
+    .grid {
+        display: grid;
+    }
+
+    .grid-cols-1 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+
+    .md\:grid-cols-5 {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .lg\:grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .gap-4 {
+        gap: 1rem;
+    }
+
+    .gap-6 {
+        gap: 1.5rem;
+    }
+
+    .block {
+        display: block;
+    }
+
+    .text-sm {
+        font-size: 0.875rem;
+    }
+
+    .font-medium {
+        font-weight: 500;
+    }
+
+    .text-gray-700 {
+        color: #374151;
+    }
+
+    .mt-1 {
+        margin-top: 0.25rem;
+    }
+
+    .w-full {
+        width: 100%;
+    }
+
+    .rounded-md {
+        border-radius: 0.375rem;
+    }
+
+    .border-gray-300 {
+        border-color: #d1d5db;
+    }
+
+    .border {
+        border-width: 1px;
+    }
+
+    .shadow-sm {
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .focus\:border-blue-500:focus {
+        border-color: #3b82f6;
+    }
+
+    .focus\:ring-blue-500:focus {
+        --tw-ring-color: #3b82f6;
+    }
+
+    .focus\:outline-none:focus {
+        outline: 2px solid transparent;
+        outline-offset: 2px;
+    }
+
+    .focus\:ring-2:focus {
+        --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+        --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+        box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+    }
+
+    .flex {
+        display: flex;
+    }
+
+    .items-end {
+        align-items: flex-end;
+    }
+
+    .bg-blue-600 {
+        background-color: #2563eb;
+    }
+
+    .text-white {
+        color: white;
+    }
+
+    .px-4 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .py-2 {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+
+    .hover\:bg-blue-700:hover {
+        background-color: #1d4ed8;
+    }
+
+    .bg-gray-500 {
+        background-color: #6b7280;
+    }
+
+    .hover\:bg-gray-600:hover {
+        background-color: #4b5563;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .mr-2 {
+        margin-right: 0.5rem;
+    }
+
+    .text-2xl {
+        font-size: 1.5rem;
+    }
+
+    .font-bold {
+        font-weight: 700;
+    }
+
+    .text-gray-900 {
+        color: #111827;
+    }
+
+    .mb-4 {
+        margin-bottom: 1rem;
+    }
+
+    .text-lg {
+        font-size: 1.125rem;
+    }
+
+    .font-semibold {
+        font-weight: 600;
+    }
+
+    .space-y-4 > * + * {
+        margin-top: 1rem;
+    }
+
+    .justify-between {
+        justify-content: space-between;
+    }
+
+    .items-center {
+        align-items: center;
+    }
+
+    .text-gray-600 {
+        color: #4b5563;
+    }
+
+    .text-blue-600 {
+        color: #2563eb;
+    }
+
+    .text-green-600 {
+        color: #059669;
+    }
+
+    .text-yellow-600 {
+        color: #d97706;
+    }
+
+    .text-red-600 {
+        color: #dc2626;
+    }
+
+    .text-purple-600 {
+        color: #7c3aed;
+    }
+
+    .text-orange-600 {
+        color: #ea580c;
+    }
+
+    .border-t {
+        border-top-width: 1px;
+    }
+
+    .pt-4 {
+        padding-top: 1rem;
+    }
+
+    .space-y-2 > * + * {
+        margin-top: 0.5rem;
+    }
+
+    .space-y-3 > * + * {
+        margin-top: 0.75rem;
+    }
+
+    .p-3 {
+        padding: 0.75rem;
+    }
+
+    .bg-gray-50 {
+        background-color: #f9fafb;
+    }
+
+    .rounded-lg {
+        border-radius: 0.5rem;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .py-8 {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+
+    .text-gray-400 {
+        color: #9ca3af;
+    }
+
+    .text-4xl {
+        font-size: 2.25rem;
+    }
+
+    .text-gray-500 {
+        color: #6b7280;
+    }
+
+    .h-64 {
+        height: 16rem;
+    }
+
+    .items-end {
+        align-items: flex-end;
+    }
+
+    .justify-between {
+        justify-content: space-between;
+    }
+
+    .space-x-1 > * + * {
+        margin-left: 0.25rem;
+    }
+
+    .flex-1 {
+        flex: 1 1 0%;
+    }
+
+    .bg-blue-200 {
+        background-color: #bfdbfe;
+    }
+
+    .rounded-t {
+        border-top-left-radius: 0.375rem;
+        border-top-right-radius: 0.375rem;
+    }
+
+    .text-xs {
+        font-size: 0.75rem;
+    }
+
+    .mt-2 {
+        margin-top: 0.5rem;
+    }
+
+    .overflow-x-auto {
+        overflow-x: auto;
+    }
+
+    .min-w-full {
+        min-width: 100%;
+    }
+
+    .divide-y {
+        border-bottom-width: 0;
+    }
+
+    .divide-y > * + * {
+        border-top-width: 1px;
+    }
+
+    .divide-gray-200 {
+        border-color: #e5e7eb;
+    }
+
+    .px-4 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .py-3 {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+
+    .text-left {
+        text-align: left;
+    }
+
+    .uppercase {
+        text-transform: uppercase;
+    }
+
+    .tracking-wider {
+        letter-spacing: 0.05em;
+    }
+
+    .whitespace-nowrap {
+        white-space: nowrap;
+    }
+
+    .hover\:bg-gray-50:hover {
+        background-color: #f9fafb;
+    }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .border {
+        border-width: 1px;
+    }
+
+    .border-gray-200 {
+        border-color: #e5e7eb;
+    }
+
+    .bg-gray-50 {
+        background-color: #f9fafb;
+    }
+
+    .w-16 {
+        width: 4rem;
+    }
+
+    .bg-gray-200 {
+        background-color: #e5e7eb;
+    }
+
+    .rounded-full {
+        border-radius: 9999px;
+    }
+
+    .h-2 {
+        height: 0.5rem;
+    }
+
+    .mr-2 {
+        margin-right: 0.5rem;
+    }
+
+    .bg-blue-600 {
+        background-color: #2563eb;
+    }
+
+    .px-6 {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+
+    .py-4 {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .admin-reports {
+            padding: 1rem;
+        }
+        
+        .md\:grid-cols-5 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+        
+        .lg\:grid-cols-2 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+    }
+</style>
+{% endblock %} 

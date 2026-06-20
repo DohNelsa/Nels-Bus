@@ -1,0 +1,488 @@
+{% extends 'NelsaApp/base.html' %}
+{% load static %}
+{% load currency %}
+
+{% block title %}Route Details - Admin{% endblock %}
+
+{% block content %}
+<div class="admin-route-detail">
+    <div class="page-header">
+        <h1>Route Details</h1>
+        <p>{{ route.start_location }} → {{ route.end_location }}</p>
+        <div class="header-actions">
+            <a href="{% url 'admin_route_edit' route.id %}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Edit Route
+            </a>
+            <a href="{% url 'admin_routes' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Routes
+            </a>
+        </div>
+    </div>
+
+    <!-- Route Overview -->
+    <div class="route-overview">
+        <div class="overview-grid">
+            <div class="overview-card">
+                <i class="fas fa-map-marker-alt"></i>
+                <h3>Route</h3>
+                <p>{{ route.start_location }} → {{ route.end_location }}</p>
+            </div>
+            <div class="overview-card">
+                <i class="fas fa-road"></i>
+                <h3>Distance</h3>
+                <p>{{ route.distance }} km</p>
+            </div>
+            <div class="overview-card">
+                <i class="fas fa-clock"></i>
+                <h3>Duration</h3>
+                <p>{{ route.duration }} hours</p>
+            </div>
+            <div class="overview-card">
+                <i class="fas fa-money-bill-wave"></i>
+                <h3>Base Price</h3>
+                <p>{{ route.price|fcfa }} FCFA</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Schedules</h3>
+                <p class="stat-number">{{ total_schedules }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Upcoming Schedules</h3>
+                <p class="stat-number">{{ upcoming_schedules }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Bookings</h3>
+                <p class="stat-number">{{ total_bookings }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Confirmed Bookings</h3>
+                <p class="stat-number">{{ confirmed_bookings }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Revenue</h3>
+                <p class="stat-number">{{ total_revenue|fcfa }} FCFA</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Price History -->
+    {% if price_history %}
+    <div class="price-history-section">
+        <h2>Price History</h2>
+        <div class="price-history">
+            <p>This route has been used with the following prices in schedules:</p>
+            <div class="price-tags">
+                {% for price in price_history %}
+                <span class="price-tag">{{ price|fcfa }} FCFA</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Recent Schedules -->
+    <div class="schedules-section">
+        <div class="section-header">
+            <h2>Recent Schedules</h2>
+            <a href="{% url 'admin_schedules' %}?route={{ route.id }}" class="btn btn-primary btn-sm">
+                View All Schedules
+            </a>
+        </div>
+        
+        {% if schedules %}
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Bus</th>
+                        <th>Departure</th>
+                        <th>Arrival</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for schedule in schedules %}
+                    <tr>
+                        <td>{{ schedule.bus.bus_number }}</td>
+                        <td>{{ schedule.departure_time|date:"M d, Y H:i" }}</td>
+                        <td>{{ schedule.arrival_time|date:"M d, Y H:i" }}</td>
+                        <td>
+                            <span class="price-tag">{{ schedule.price|fcfa }} FCFA</span>
+                        </td>
+                        <td>
+                            <span class="status-badge {% if schedule.is_available %}status-available{% else %}status-unavailable{% endif %}">
+                                {% if schedule.is_available %}Available{% else %}Unavailable{% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="no-data">
+            <i class="fas fa-calendar-times"></i>
+            <h3>No schedules found</h3>
+            <p>No schedules have been created for this route yet.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Recent Bookings -->
+    <div class="bookings-section">
+        <div class="section-header">
+            <h2>Recent Bookings</h2>
+            <a href="{% url 'admin_bookings' %}?route={{ route.id }}" class="btn btn-primary btn-sm">
+                View All Bookings
+            </a>
+        </div>
+        
+        {% if bookings %}
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Passenger</th>
+                        <th>Bus</th>
+                        <th>Date</th>
+                        <th>Seat</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                    <tr>
+                        <td>{{ booking.passenger.name }}</td>
+                        <td>{{ booking.schedule.bus.bus_number }}</td>
+                        <td>{{ booking.booking_date|date:"M d, Y" }}</td>
+                        <td>{{ booking.seat_number }}</td>
+                        <td>
+                            <span class="status-badge status-{{ booking.status|lower }}">
+                                {{ booking.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="no-data">
+            <i class="fas fa-ticket-alt"></i>
+            <h3>No bookings found</h3>
+            <p>No bookings have been made for this route yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .admin-route-detail {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .page-header h1 {
+        color: #2c3e50;
+        margin: 0;
+    }
+
+    .page-header p {
+        color: #7f8c8d;
+        margin: 0;
+        font-size: 1.1rem;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .route-overview {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .overview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .overview-card {
+        text-align: center;
+        padding: 1.5rem;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        transition: transform 0.3s ease;
+    }
+
+    .overview-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .overview-card i {
+        font-size: 2.5rem;
+        color: #3498db;
+        margin-bottom: 1rem;
+    }
+
+    .overview-card h3 {
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+    }
+
+    .overview-card p {
+        color: #7f8c8d;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .stats-section {
+        margin-bottom: 2rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .stat-card h3 {
+        color: #2c3e50;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-number {
+        color: #3498db;
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+
+    .price-history-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .price-history-section h2 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+
+    .price-history p {
+        color: #7f8c8d;
+        margin-bottom: 1rem;
+    }
+
+    .price-tags {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .price-tag {
+        background: #e8f5e8;
+        color: #27ae60;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .schedules-section,
+    .bookings-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-header h2 {
+        color: #2c3e50;
+        margin: 0;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    .admin-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-available {
+        background: #e8f5e8;
+        color: #27ae60;
+    }
+
+    .status-unavailable {
+        background: #ffeaea;
+        color: #e74c3c;
+    }
+
+    .status-confirmed {
+        background: #e8f5e8;
+        color: #27ae60;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-cancelled {
+        background: #ffeaea;
+        color: #e74c3c;
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 3rem;
+        color: #7f8c8d;
+    }
+
+    .no-data i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: #3498db;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #2980b9;
+    }
+
+    .btn-secondary {
+        background: #95a5a6;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #7f8c8d;
+    }
+
+    .btn-warning {
+        background: #ffc107;
+        color: #212529;
+    }
+
+    .btn-warning:hover {
+        background: #e0a800;
+    }
+
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+        .admin-route-detail {
+            padding: 1rem;
+        }
+        
+        .page-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .header-actions {
+            flex-direction: column;
+        }
+        
+        .overview-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .section-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: stretch;
+        }
+    }
+</style>
+{% endblock %} 

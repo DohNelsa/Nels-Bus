@@ -1,0 +1,32 @@
+{% extends 'NelsaApp/base.html' %}
+{% load static %}
+
+{% block title %}Ticket verification - GARANTI EXPRESS{% endblock %}
+
+{% block content %}
+<div class="pt-20 pb-12 px-4">
+    <div class="max-w-lg mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="px-6 py-4 {% if valid %}bg-green-600{% else %}bg-red-600{% endif %}">
+            <h1 class="text-xl font-bold text-white">
+                {% if valid %}Valid ticket token{% else %}Invalid ticket{% endif %}
+            </h1>
+        </div>
+        <div class="p-6 space-y-4 text-gray-800">
+            {% if not valid %}
+                <p class="text-red-700">This link is invalid or has expired. Ask the passenger to refresh their booking page for a new QR code.</p>
+            {% else %}
+                <dl class="space-y-2 text-sm">
+                    <div class="flex justify-between border-b pb-2"><dt class="text-gray-500">Booking</dt><dd class="font-medium">#{{ bg.id }}</dd></div>
+                    <div class="flex justify-between border-b pb-2"><dt class="text-gray-500">Status</dt><dd class="font-medium">{{ bg.status }}</dd></div>
+                    <div class="flex justify-between border-b pb-2"><dt class="text-gray-500">Passenger</dt><dd>{{ bg.passenger.name }}</dd></div>
+                    <div class="flex justify-between border-b pb-2"><dt class="text-gray-500">Route</dt><dd>{{ bg.schedule.route.start_location }} → {{ bg.schedule.route.end_location }}</dd></div>
+                    <div class="flex justify-between border-b pb-2"><dt class="text-gray-500">Departure</dt><dd>{{ bg.schedule.departure_time|date:"M d, Y, H:i" }}</dd></div>
+                    <div class="flex justify-between border-b pb-2"><dt class="text-gray-500">Seats</dt><dd>{% for s in seats %}{{ s }}{% if not forloop.last %}, {% endif %}{% endfor %}</dd></div>
+                    <div class="flex justify-between border-b pb-2"><dt class="text-gray-500">SMS code</dt><dd class="font-mono text-xs">{{ bg.sms_receipt_code|default:"—" }}</dd></div>
+                </dl>
+                <p class="text-xs text-gray-500">Cryptographically signed token — compare with on-board manifest as needed.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

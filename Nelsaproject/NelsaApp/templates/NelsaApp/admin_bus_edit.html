@@ -1,0 +1,137 @@
+{% extends 'NelsaApp/base.html' %}
+{% load static %}
+
+{% block title %}Edit Bus - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Edit Bus</h1>
+            <p class="text-gray-600">Update bus information for {{ bus.bus_number }}</p>
+        </div>
+        <div class="flex space-x-2">
+            <a href="{% url 'admin_bus_detail' bus.id %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-eye mr-2"></i>View Details
+            </a>
+            <a href="{% url 'admin_buses' %}" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Buses
+            </a>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Bus Number -->
+                <div>
+                    <label for="bus_number" class="block text-sm font-medium text-gray-700 mb-2">
+                        Bus Number <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="bus_number" name="bus_number" required
+                           value="{{ bus.bus_number }}"
+                           placeholder="e.g., BUS001, MGH001"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent">
+                    <p class="mt-1 text-sm text-gray-500">Unique identifier for the bus</p>
+                </div>
+
+                <!-- Bus Type -->
+                <div>
+                    <label for="bus_type" class="block text-sm font-medium text-gray-700 mb-2">
+                        Bus Type <span class="text-red-500">*</span>
+                    </label>
+                    <select id="bus_type" name="bus_type" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent">
+                        <option value="">Select bus type</option>
+                        <option value="Luxury" {% if bus.bus_type == 'Luxury' %}selected{% endif %}>Luxury</option>
+                        <option value="Standard" {% if bus.bus_type == 'Standard' %}selected{% endif %}>Standard</option>
+                        <option value="Express" {% if bus.bus_type == 'Express' %}selected{% endif %}>Express</option>
+                    </select>
+                    <p class="mt-1 text-sm text-gray-500">Type of bus service offered</p>
+                </div>
+
+                <!-- Capacity -->
+                <div>
+                    <label for="capacity" class="block text-sm font-medium text-gray-700 mb-2">
+                        Capacity <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" id="capacity" name="capacity" required min="1" max="100"
+                           value="{{ bus.capacity }}"
+                           placeholder="e.g., 45"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent">
+                    <p class="mt-1 text-sm text-gray-500">Number of seats available</p>
+                </div>
+
+                <!-- Operator -->
+                <div>
+                    <label for="operator" class="block text-sm font-medium text-gray-700 mb-2">
+                        Operator
+                    </label>
+                    <input type="text" id="operator" name="operator"
+                           value="{{ bus.operator|default:'' }}"
+                           placeholder="e.g., John Doe"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent">
+                    <p class="mt-1 text-sm text-gray-500">Name of the bus operator (optional)</p>
+                </div>
+
+                <!-- Availability -->
+                <div class="flex items-center">
+                    <input type="checkbox" id="is_available" name="is_available"
+                           {% if bus.is_available %}checked{% endif %}
+                           class="h-4 w-4 text-black focus:ring-black border-gray-300 rounded">
+                    <label for="is_available" class="ml-2 block text-sm text-gray-900">
+                        Bus is available for service
+                    </label>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                    <a href="{% url 'admin_buses' %}" 
+                       class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        Update Bus
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Current Bus Information -->
+        <div class="mt-6 bg-gray-50 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Current Bus Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Bus Number</label>
+                    <p class="text-lg font-semibold text-gray-900">{{ bus.bus_number }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Bus Type</label>
+                    <span class="inline-flex px-2 py-1 text-sm font-semibold rounded-full
+                        {% if bus.bus_type == 'Luxury' %}bg-purple-100 text-purple-800
+                        {% elif bus.bus_type == 'Standard' %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-orange-100 text-orange-800{% endif %}">
+                        {{ bus.bus_type }}
+                    </span>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Capacity</label>
+                    <p class="text-lg text-gray-900">{{ bus.capacity }} seats</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Status</label>
+                    <span class="inline-flex px-2 py-1 text-sm font-semibold rounded-full
+                        {% if bus.is_available %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                        {% if bus.is_available %}Available{% else %}Unavailable{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,206 @@
+{% extends 'NelsaApp/base.html' %}
+{% load static %}
+{% load currency %}
+
+{% block title %}Reservation receipt — GARANTI EXPRESS{% endblock %}
+
+{% block content %}
+<div class="pt-20 pb-12 bg-gray-50 min-h-screen">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-6">
+            <p class="text-sm font-semibold uppercase tracking-wider text-blue-600">GARANTI EXPRESS</p>
+            <h1 class="mt-2 text-2xl sm:text-3xl font-extrabold text-gray-900">Reservation receipt</h1>
+            <p class="mt-2 text-sm text-gray-600">Keep this page for your records. Show the QR at boarding when your booking is confirmed.</p>
+        </div>
+
+        <div id="receipt" class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden print:shadow-none print:border-gray-300">
+            <!-- Status strip -->
+            <div class="px-6 py-4 {% if booking_group.status == 'Confirmed' %}bg-emerald-600{% else %}bg-amber-500{% endif %}">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div class="flex items-center gap-3 text-white">
+                        <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-white/15">
+                            {% if booking_group.status == 'Confirmed' %}
+                            <i class="fas fa-check-circle text-2xl" aria-hidden="true"></i>
+                            {% else %}
+                            <i class="fas fa-hourglass-half text-2xl" aria-hidden="true"></i>
+                            {% endif %}
+                        </span>
+                        <div>
+                            <p class="text-lg font-bold">
+                                {% if booking_group.status == 'Confirmed' %}Booking confirmed{% else %}Payment reference received{% endif %}
+                            </p>
+                            <p class="text-sm text-white/90">
+                                {% if booking_group.status == 'Confirmed' %}
+                                    Your seats are reserved for this trip.
+                                {% else %}
+                                    We received your payment reference. Agency confirmation may still be required.
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-left sm:text-right text-white">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-white/80">Booking group</p>
+                        <p class="text-2xl font-extrabold font-mono">#{{ booking_group.id }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 sm:p-8 space-y-8">
+                <!-- Passenger -->
+                <section>
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Passenger</h2>
+                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <dt class="text-gray-500">Full name</dt>
+                            <dd class="mt-1 font-semibold text-gray-900">{{ booking_group.passenger.name }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-gray-500">Contact</dt>
+                            <dd class="mt-1 text-gray-900">{{ booking_group.passenger.phone|default:"—" }}</dd>
+                            <dd class="text-gray-600 text-xs">{{ booking_group.passenger.email }}</dd>
+                        </div>
+                    </dl>
+                </section>
+
+                <!-- Journey -->
+                <section class="border-t border-gray-100 pt-8">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Trip</h2>
+                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                        <div class="sm:col-span-2">
+                            <dt class="text-gray-500">Route</dt>
+                            <dd class="mt-1 text-lg font-bold text-gray-900">
+                                {{ booking_group.schedule.route.start_location }} → {{ booking_group.schedule.route.end_location }}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-gray-500">Bus</dt>
+                            <dd class="mt-1 font-semibold text-gray-900">
+                                {{ booking_group.schedule.bus.bus_number }}
+                                <span class="text-gray-600 font-normal">({{ booking_group.schedule.bus.bus_type }})</span>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-gray-500">Departure</dt>
+                            <dd class="mt-1 font-semibold text-gray-900">{{ booking_group.schedule.departure_time|date:"M j, Y" }}</dd>
+                            <dd class="text-gray-600">{{ booking_group.schedule.departure_time|date:"g:i A" }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-gray-500">Arrival (scheduled)</dt>
+                            <dd class="mt-1 font-semibold text-gray-900">{{ booking_group.schedule.arrival_time|date:"M j, Y" }}</dd>
+                            <dd class="text-gray-600">{{ booking_group.schedule.arrival_time|date:"g:i A" }}</dd>
+                        </div>
+                    </dl>
+                </section>
+
+                <!-- Seats & amount -->
+                <section class="border-t border-gray-100 pt-8">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Seats &amp; payment</h2>
+                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <dt class="text-gray-500">Seat numbers</dt>
+                            <dd class="mt-1 font-mono font-semibold text-gray-900 text-base">
+                                {% for s in seats %}{{ s }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}
+                            </dd>
+                            <dd class="text-gray-500 text-xs mt-1">{{ seats|length }} seat(s)</dd>
+                        </div>
+                        <div>
+                            <dt class="text-gray-500">Total</dt>
+                            <dd class="mt-1 text-2xl font-extrabold text-blue-600">{{ booking_group.total_amount|fcfa }} <span class="text-base font-semibold text-gray-600">FCFA</span></dd>
+                        </div>
+                        {% if payment %}
+                        <div>
+                            <dt class="text-gray-500">Payment method</dt>
+                            <dd class="mt-1 font-medium text-gray-900">
+                                {% if payment.payment_method == 'MOMO' %}MTN Mobile Money
+                                {% elif payment.payment_method == 'ORANGE' %}Orange Money
+                                {% else %}Credit/Debit Card{% endif %}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-gray-500">Payment record</dt>
+                            <dd class="mt-1">
+                                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold
+                                    {% if payment.status == 'COMPLETED' %}bg-green-100 text-green-800
+                                    {% elif payment.status == 'PENDING' %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ payment.status }}
+                                </span>
+                            </dd>
+                        </div>
+                        {% endif %}
+                        <div class="sm:col-span-2">
+                            <dt class="text-gray-500">Transaction / reference ID</dt>
+                            <dd class="mt-1 font-mono text-sm break-all bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-gray-900">
+                                {{ booking_group.transaction_id|default:"—" }}
+                            </dd>
+                            {% if booking_group.transaction_verified %}
+                            <p class="mt-1 text-xs text-emerald-700"><i class="fas fa-shield-alt mr-1"></i>Payment reference verified.</p>
+                            {% endif %}
+                        </div>
+                    </dl>
+                </section>
+
+                <!-- Agency approval -->
+                <section class="border-t border-gray-100 pt-8">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Agency approval</h2>
+                    {% if booking_group.status == 'Confirmed' %}
+                    <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+                        <p class="font-semibold"><i class="fas fa-check-circle mr-2"></i>Confirmed by GARANTI EXPRESS</p>
+                        {% if booking_group.verified_by %}
+                        <p class="mt-1 text-emerald-800">
+                            Staff: {{ booking_group.verified_by.get_full_name|default:booking_group.verified_by.username }}
+                            {% if booking_group.verified_at %}
+                            <span class="text-emerald-700">· {{ booking_group.verified_at|date:"M j, Y, g:i A" }}</span>
+                            {% endif %}
+                        </p>
+                        {% elif booking_group.verified_at %}
+                        <p class="mt-1 text-emerald-800">{{ booking_group.verified_at|date:"M j, Y, g:i A" }}</p>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                        <p class="font-semibold"><i class="fas fa-info-circle mr-2"></i>Pending confirmation</p>
+                        <p class="mt-1 text-amber-800">Your reference is on file. Final approval is completed by GARANTI EXPRESS staff after verification.</p>
+                    </div>
+                    {% endif %}
+                    {% if booking_group.sms_receipt_code %}
+                    <p class="mt-3 text-xs text-gray-500">
+                        SMS receipt code: <span class="font-mono font-semibold text-gray-800">{{ booking_group.sms_receipt_code }}</span>
+                    </p>
+                    {% endif %}
+                </section>
+
+                {% if ticket_qr_url %}
+                <section class="border-t border-gray-100 pt-8">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Digital ticket QR</h2>
+                    <p class="text-sm text-gray-600 mb-4">Show at boarding; staff can scan to verify this booking group.</p>
+                    <div class="flex flex-col sm:flex-row gap-6 items-start">
+                        <img src="{{ ticket_qr_url }}" width="180" height="180" alt="Ticket QR code" class="border border-gray-200 rounded-lg bg-white p-2" />
+                        <div class="text-xs text-gray-500 break-all flex-1">
+                            <p class="font-semibold text-gray-700 mb-1">Verification link</p>
+                            <a href="{{ ticket_verify_url }}" class="text-blue-600 hover:underline">{{ ticket_verify_url }}</a>
+                        </div>
+                    </div>
+                </section>
+                {% endif %}
+
+                <div class="flex flex-col sm:flex-row gap-3 justify-between pt-4 border-t border-gray-100 print:hidden">
+                    <button type="button" onclick="window.print()" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        <i class="fas fa-print mr-2"></i> Print receipt
+                    </button>
+                    <div class="flex flex-wrap gap-2 justify-end">
+                        <a href="{% url 'booking' %}" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            New booking
+                        </a>
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'user_profile' %}" class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                            My bookings
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,568 @@
+{% extends 'NelsaApp/admin.html' %}
+{% load static %}
+{% load currency %}
+
+{% block title %}Booking {{ booking_ref }} — {{ company_name }}{% endblock %}
+
+{% block content %}
+<div class="admin-booking-detail pt-20 pb-12 bg-slate-50 min-h-screen">
+    {% if open_whatsapp_url %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+        <div class="rounded-2xl border-2 border-[#25D366] bg-gradient-to-r from-emerald-50 to-green-50 p-6 shadow-lg">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <p class="text-lg font-bold text-emerald-900 flex items-center gap-2">
+                        <i class="fab fa-whatsapp text-2xl text-[#25D366]" aria-hidden="true"></i>
+                        Send GARANTI confirmation on WhatsApp
+                    </p>
+                    <p class="mt-1 text-sm text-emerald-800">WhatsApp opens with the full booking receipt ready. Send it from <strong>{{ company_phone_display }}</strong> to <strong>{{ whatsapp_phone|default:"the passenger" }}</strong> — one tap on <strong>Send</strong>.</p>
+                </div>
+                <a href="{{ open_whatsapp_url }}" target="_blank" rel="noopener noreferrer" id="whatsapp-handoff-link"
+                   class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-8 py-4 text-base font-bold text-white shadow-lg hover:opacity-90 transition-opacity shrink-0">
+                    <i class="fab fa-whatsapp text-xl" aria-hidden="true"></i>
+                    Open WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <!-- Top bar -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+        <a href="{% url 'admin_bookings' %}" class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-700 transition-colors">
+            <i class="fas fa-arrow-left text-xs" aria-hidden="true"></i>
+            Back to bookings
+        </a>
+    </div>
+
+    <!-- Hero summary -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 text-white shadow-xl shadow-slate-900/20">
+            <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,_#3b82f6_0%,_transparent_50%)]"></div>
+            <div class="relative p-6 sm:p-8 lg:p-10">
+                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-blue-200/90">{{ company_name }} · Operations</p>
+                        <h1 class="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight">
+                            Reservation <span class="font-mono text-blue-200">{{ booking_ref }}</span>
+                        </h1>
+                        <p class="mt-3 text-lg text-slate-200">
+                            {{ booking_group.schedule.route.start_location }}
+                            <i class="fas fa-long-arrow-alt-right mx-2 text-blue-300 text-sm" aria-hidden="true"></i>
+                            {{ booking_group.schedule.route.end_location }}
+                        </p>
+                        <p class="mt-1 text-sm text-slate-400">
+                            Booked {{ booking_group.created_at|date:"F j, Y" }} at {{ booking_group.created_at|date:"g:i A" }}
+                            · Internal ID #{{ booking_group.id }}
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3 lg:justify-end">
+                        <span class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-semibold
+                            {% if booking_group.status == 'Confirmed' %}bg-emerald-500/20 text-emerald-100 ring-1 ring-emerald-400/40
+                            {% elif booking_group.status == 'Pending' %}bg-amber-500/20 text-amber-100 ring-1 ring-amber-400/40
+                            {% else %}bg-red-500/20 text-red-100 ring-1 ring-red-400/40{% endif %}">
+                            <span class="h-2 w-2 rounded-full
+                                {% if booking_group.status == 'Confirmed' %}bg-emerald-400
+                                {% elif booking_group.status == 'Pending' %}bg-amber-400 animate-pulse
+                                {% else %}bg-red-400{% endif %}"></span>
+                            {{ booking_group.status }}
+                        </span>
+                        <span class="rounded-full bg-white/10 px-4 py-1.5 text-sm font-medium text-white ring-1 ring-white/15">
+                            {{ seat_count }} seat{{ seat_count|pluralize }}
+                        </span>
+                        <span class="rounded-full bg-white/10 px-4 py-1.5 text-sm font-bold text-white ring-1 ring-white/15">
+                            {{ booking_group.total_amount|fcfa }} FCFA
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Quick journey strip -->
+                <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="rounded-xl bg-white/5 ring-1 ring-white/10 p-4">
+                        <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Departure</p>
+                        <p class="mt-1 text-sm font-semibold">{{ booking_group.schedule.departure_time|date:"D, M j · g:i A" }}</p>
+                    </div>
+                    <div class="rounded-xl bg-white/5 ring-1 ring-white/10 p-4">
+                        <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Arrival</p>
+                        <p class="mt-1 text-sm font-semibold">{{ booking_group.schedule.arrival_time|date:"D, M j · g:i A" }}</p>
+                    </div>
+                    <div class="rounded-xl bg-white/5 ring-1 ring-white/10 p-4">
+                        <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Coach</p>
+                        <p class="mt-1 text-sm font-semibold">Bus {{ booking_group.schedule.bus.bus_number }} · {{ booking_group.schedule.bus.bus_type }}</p>
+                    </div>
+                    <div class="rounded-xl bg-white/5 ring-1 ring-white/10 p-4">
+                        <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Seats</p>
+                        <p class="mt-1 text-sm font-semibold font-mono">{{ seat_numbers|join:", "|default:"—" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Primary actions — always visible at top (sidebar copy is below on desktop) -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <div class="sticky top-20 z-30 rounded-2xl border border-slate-200 bg-white shadow-lg overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-100 bg-slate-50/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700">Booking actions</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        {% if booking_group.status == 'Pending' %}
+                        Confirm after checking MoMo/Orange payment · Cancel releases seats
+                        {% elif booking_group.status == 'Confirmed' %}
+                        This reservation is confirmed — cancel only if you need to void it
+                        {% elif booking_group.status == 'Cancelled' %}
+                        This reservation was cancelled — no further actions
+                        {% endif %}
+                    </p>
+                </div>
+                <span class="inline-flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500">
+                    <span class="rounded-full bg-slate-100 px-2.5 py-1 text-slate-700">
+                        Signed in as <strong>{{ user.username }}</strong>
+                        {% if user.is_superuser or is_effective_superuser %}· Superuser{% elif user.is_staff %}· Staff{% else %}· Customer{% endif %}
+                    </span>
+                </span>
+            </div>
+            <div class="p-5 flex flex-col lg:flex-row lg:items-end gap-4">
+                {% if show_booking_confirm_actions and booking_group.status == 'Pending' %}
+                <form method="post" action="{% url 'admin_confirm_booking' booking_group.id %}" class="flex-1 space-y-3" id="confirm-booking-form">
+                    {% csrf_token %}
+                    {% if not ready_to_confirm and not is_effective_superuser %}
+                    <div class="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-900">
+                        {{ confirm_block_reason }}
+                    </div>
+                    {% endif %}
+                    <p class="text-xs text-slate-500">Clicking confirm marks payment as verified and releases the ticket to the passenger.</p>
+                    <label class="block max-w-md">
+                        <span class="text-xs font-medium text-slate-500">MoMo reference (optional)</span>
+                        <input type="text" name="transaction_id" value="{{ booking_group.transaction_id|default:'' }}" placeholder="e.g. 16643528543" class="mt-1 w-full rounded-lg border-slate-300 text-sm px-3 py-2 shadow-sm focus:border-emerald-500 focus:ring-emerald-500" />
+                    </label>
+                    <button type="submit" id="confirm-booking-btn" class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-emerald-600/25 hover:bg-emerald-700 transition-colors disabled:opacity-60 disabled:cursor-wait">
+                        <i class="fas fa-check-circle" aria-hidden="true"></i>
+                        <span id="confirm-booking-btn-label">Confirm reservation</span>
+                    </button>
+                </form>
+                {% elif booking_group.status == 'Confirmed' and booking_group.whatsapp_status != 'SENT' and user_can_confirm %}
+                <form method="post" action="{% url 'admin_resend_sms_receipt' booking_group.id %}" onsubmit="return confirm('Resend WhatsApp confirmation?')">
+                    {% csrf_token %}
+                    <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-6 py-3 text-sm font-semibold text-white hover:opacity-90 transition-opacity">
+                        <i class="fab fa-whatsapp text-lg" aria-hidden="true"></i>
+                        Resend WhatsApp
+                    </button>
+                </form>
+                {% endif %}
+
+                {% if show_booking_cancel_actions and booking_group.status != 'Cancelled' %}
+                <form method="post" action="{% url 'admin_cancel_booking' booking_group.id %}" onsubmit="return confirm('Cancel {{ booking_ref }}? Seats will be released.')" class="lg:ml-auto">
+                    {% csrf_token %}
+                    <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-red-200 bg-white px-6 py-3 text-sm font-bold text-red-700 hover:bg-red-50 transition-colors w-full lg:w-auto">
+                        <i class="fas fa-ban" aria-hidden="true"></i>
+                        Cancel reservation
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <!-- Sidebar first on mobile so Actions are visible immediately -->
+            <div class="space-y-6 order-first xl:order-2 xl:col-start-3">
+                <!-- Actions -->
+                <section class="rounded-2xl border-2 border-slate-200 bg-white shadow-lg overflow-hidden sticky top-24 z-20">
+                    <div class="px-5 py-4 border-b border-slate-100 bg-slate-50/80">
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700">Actions</h2>
+                        <p class="text-xs text-slate-500 mt-1">Confirm payment or cancel this reservation</p>
+                    </div>
+                    <div class="p-5 space-y-4">
+                        <p class="text-xs text-slate-500">
+                            Signed in as <strong>{{ signed_in_username|default:user.username }}</strong>
+                            {% if is_effective_superuser %} · Superuser{% elif user.is_staff %} · Staff{% endif %}
+                        </p>
+
+                        {% if show_booking_confirm_actions and booking_group.status == 'Pending' %}
+                            <form method="post" action="{% url 'admin_confirm_booking' booking_group.id %}" class="space-y-3" id="confirm-booking-form-sidebar">
+                                {% csrf_token %}
+                                <label class="block">
+                                    <span class="text-xs font-medium text-slate-500">MoMo reference (optional)</span>
+                                    <input type="text" name="transaction_id" value="{{ booking_group.transaction_id|default:'' }}" placeholder="e.g. 16643528543" class="mt-1 w-full rounded-lg border-slate-300 text-sm px-3 py-2.5 shadow-sm focus:border-emerald-500 focus:ring-emerald-500" />
+                                </label>
+                                <button type="submit" class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3.5 text-sm font-bold text-white shadow-md shadow-emerald-600/30 hover:bg-emerald-700 active:scale-[0.98] transition-all cursor-pointer">
+                                    <i class="fas fa-check-circle text-lg" aria-hidden="true"></i>
+                                    Confirm reservation
+                                </button>
+                                <p class="text-xs text-slate-500 text-center">Payment is marked verified when you confirm.</p>
+                            </form>
+                        {% elif booking_group.status == 'Confirmed' %}
+                            <p class="text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2">This booking is already confirmed.</p>
+                        {% elif booking_group.status == 'Cancelled' %}
+                            <p class="text-sm text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">This booking was cancelled.</p>
+                        {% endif %}
+
+                        {% if show_booking_cancel_actions and booking_group.status != 'Cancelled' %}
+                            <form method="post" action="{% url 'admin_cancel_booking' booking_group.id %}" onsubmit="return confirm('Cancel {{ booking_ref }}? Seats will be released.');">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full inline-flex items-center justify-center gap-2 rounded-xl border-2 border-red-300 bg-white px-4 py-3.5 text-sm font-bold text-red-700 hover:bg-red-50 active:scale-[0.98] transition-all cursor-pointer">
+                                    <i class="fas fa-ban text-lg" aria-hidden="true"></i>
+                                    Cancel reservation
+                                </button>
+                            </form>
+                        {% endif %}
+
+                        {% if booking_group.status == 'Confirmed' and booking_group.whatsapp_status != 'SENT' and show_booking_confirm_actions %}
+                            <form method="post" action="{% url 'admin_resend_sms_receipt' booking_group.id %}" onsubmit="return confirm('Resend WhatsApp confirmation?');">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-3 text-sm font-semibold text-white hover:opacity-90 cursor-pointer">
+                                    <i class="fab fa-whatsapp text-lg" aria-hidden="true"></i>
+                                    Resend WhatsApp
+                                </button>
+                            </form>
+                        {% endif %}
+
+                        {% if not show_booking_confirm_actions and not show_booking_cancel_actions %}
+                            <p class="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                                You are signed in as <strong>{{ user.username }}</strong> but this account cannot confirm bookings.
+                                <a href="{% url 'logout' %}" class="font-semibold underline">Log out</a> and sign in as <strong>nelsa</strong> or ask an admin to grant staff access.
+                            </p>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <!-- Journey card -->
+                <section class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-100 bg-slate-50/80">
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500">Trip summary</h2>
+                    </div>
+                    <div class="p-5 space-y-4">
+                        <div class="flex gap-3">
+                            <div class="flex flex-col items-center">
+                                <span class="h-3 w-3 rounded-full bg-blue-600 ring-4 ring-blue-100"></span>
+                                <span class="w-0.5 flex-1 bg-slate-200 my-1 min-h-[2rem]"></span>
+                                <span class="h-3 w-3 rounded-full bg-indigo-600 ring-4 ring-indigo-100"></span>
+                            </div>
+                            <div class="flex-1 space-y-4 pb-1">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase text-slate-400">From</p>
+                                    <p class="font-semibold text-slate-900">{{ booking_group.schedule.route.start_location }}</p>
+                                    <p class="text-sm text-slate-500">{{ booking_group.schedule.departure_time|date:"l, F j · g:i A" }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-semibold uppercase text-slate-400">To</p>
+                                    <p class="font-semibold text-slate-900">{{ booking_group.schedule.route.end_location }}</p>
+                                    <p class="text-sm text-slate-500">{{ booking_group.schedule.arrival_time|date:"l, F j · g:i A" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-100">
+                            <span class="font-medium text-slate-800">{{ booking_group.schedule.route.duration }} h</span> estimated · Coach <span class="font-mono font-semibold">{{ booking_group.schedule.bus.bus_number }}</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- QR ticket -->
+                <section class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden text-center">
+                    <div class="px-5 py-4 border-b border-slate-100 bg-slate-50/80 text-left">
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500">Boarding pass</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Scan at gate · links to verify page</p>
+                    </div>
+                    <div class="p-6">
+                        <img src="{{ ticket_qr_url }}" width="180" height="180" alt="QR code for {{ booking_ref }}" class="mx-auto rounded-xl border-2 border-slate-100 shadow-sm" />
+                        <p class="mt-4 text-xs font-mono text-slate-500 break-all leading-relaxed">
+                            <a href="{{ ticket_verify_url }}" class="text-blue-600 hover:underline" target="_blank" rel="noopener">{{ booking_ref }}</a>
+                        </p>
+                    </div>
+                </section>
+
+                {% if booking_group.admin_notes or booking_group.payment_waived or booking_group.rebooking_of_id %}
+                <section class="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-600 space-y-2">
+                    {% if booking_group.payment_waived %}<p><i class="fas fa-info-circle text-amber-600 mr-1"></i> Payment waived — no txn required.</p>{% endif %}
+                    {% if booking_group.rebooking_of_id %}<p>Rebooked from reservation #{{ booking_group.rebooking_of_id }}.</p>{% endif %}
+                    {% if booking_group.admin_notes %}<p class="whitespace-pre-wrap"><strong>Notes:</strong> {{ booking_group.admin_notes }}</p>{% endif %}
+                </section>
+                {% endif %}
+            </div>
+
+            <!-- Main column -->
+            <div class="xl:col-span-2 space-y-6 order-2 xl:order-1">
+
+                {% if booking_group.status == 'Pending' %}
+                <section class="rounded-2xl border bg-white shadow-sm overflow-hidden
+                    {% if user.is_superuser or user_can_confirm and ready_to_confirm %}border-emerald-200{% else %}border-amber-200{% endif %}">
+                    <div class="px-6 py-4 border-b flex items-center gap-3
+                        {% if user.is_superuser or user_can_confirm and ready_to_confirm %}bg-emerald-50 border-emerald-100{% else %}bg-amber-50 border-amber-100{% endif %}">
+                        <span class="flex h-9 w-9 items-center justify-center rounded-lg
+                            {% if user.is_superuser or user_can_confirm and ready_to_confirm %}bg-emerald-600{% else %}bg-amber-600{% endif %} text-white">
+                            <i class="fas fa-clipboard-check" aria-hidden="true"></i>
+                        </span>
+                        <div>
+                            <h2 class="text-base font-bold text-slate-900">Confirmation checklist</h2>
+                            <p class="text-sm text-slate-600">Complete each step before releasing the ticket to the passenger.</p>
+                        </div>
+                    </div>
+                    <ul class="divide-y divide-slate-100">
+                        <li class="flex items-start gap-3 px-6 py-4">
+                            {% if user_can_confirm or user.is_superuser %}
+                            <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-xs"><i class="fas fa-check"></i></span>
+                            <div>
+                                <p class="text-sm font-medium text-slate-900">Staff authorization</p>
+                                <p class="text-sm text-slate-500">Use the <strong>Actions</strong> panel to confirm or cancel this booking.</p>
+                            </div>
+                            {% else %}
+                            <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-700 text-xs"><i class="fas fa-times"></i></span>
+                            <div><p class="text-sm font-medium text-slate-900">Staff authorization</p><p class="text-sm text-slate-500">Log in with a staff or superuser account.</p></div>
+                            {% endif %}
+                        </li>
+                        <li class="flex items-start gap-3 px-6 py-4">
+                            {% if booking_group.transaction_verified %}
+                            <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-xs"><i class="fas fa-check"></i></span>
+                            <div><p class="text-sm font-medium text-slate-900">Payment verified</p><p class="text-sm text-slate-500 font-mono">{% if booking_group.transaction_id %}{{ booking_group.transaction_id }}{% else %}Staff confirmed{% endif %}</p></div>
+                            {% elif booking_group.payment_waived %}
+                            <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-xs"><i class="fas fa-check"></i></span>
+                            <div><p class="text-sm font-medium text-slate-900">Payment waived</p><p class="text-sm text-slate-500">No provider transaction required (rebook / comp).</p></div>
+                            {% else %}
+                            <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-700 text-xs"><i class="fas fa-mobile-alt"></i></span>
+                            <div>
+                                <p class="text-sm font-medium text-slate-900">Manual payment check</p>
+                                <p class="text-sm text-slate-500">
+                                    {% if booking_group.transaction_id %}
+                                    Customer reference <span class="font-mono">{{ booking_group.transaction_id }}</span> — check MTN/Orange, then click <strong>Confirm reservation</strong>.
+                                    {% else %}
+                                    Check your MoMo/Orange account for {{ booking_group.total_amount|fcfa }} FCFA, then click <strong>Confirm reservation</strong>.
+                                    {% endif %}
+                                </p>
+                            </div>
+                            {% endif %}
+                        </li>
+                        <li class="flex items-start gap-3 px-6 py-4">
+                            {% if whatsapp_phone %}
+                            <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-xs"><i class="fas fa-check"></i></span>
+                            <div><p class="text-sm font-medium text-slate-900">WhatsApp delivery number</p><p class="text-sm text-slate-500 font-mono">{{ whatsapp_phone }}</p></div>
+                            {% else %}
+                            <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-700 text-xs"><i class="fas fa-times"></i></span>
+                            <div><p class="text-sm font-medium text-slate-900">WhatsApp delivery number</p><p class="text-sm text-slate-500">No valid +237 mobile on file.</p></div>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </section>
+                {% endif %}
+
+                <!-- Payment -->
+                <section class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/80">
+                        <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white"><i class="fas fa-wallet" aria-hidden="true"></i></span>
+                        <div>
+                            <h2 class="text-base font-bold text-slate-900">Payment &amp; settlement</h2>
+                            <p class="text-sm text-slate-500">Amount collected and transaction reference.</p>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
+                            <div>
+                                <dt class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total fare</dt>
+                                <dd class="mt-1 text-2xl font-extrabold text-emerald-700">{{ booking_group.total_amount|fcfa }} <span class="text-base font-semibold text-slate-500">FCFA</span></dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs font-semibold uppercase tracking-wider text-slate-400">Per seat</dt>
+                                <dd class="mt-1 text-lg font-semibold text-slate-900">{{ booking_group.schedule.price|fcfa }} FCFA × {{ seat_count }}</dd>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <dt class="text-xs font-semibold uppercase tracking-wider text-slate-400">Transaction reference</dt>
+                                <dd class="mt-2 flex flex-wrap items-center gap-3">
+                                    {% if booking_group.transaction_id %}
+                                    <code class="rounded-lg bg-slate-100 px-3 py-2 text-sm font-mono font-semibold text-slate-800 ring-1 ring-slate-200">{{ booking_group.transaction_id }}</code>
+                                    {% if booking_group.transaction_verified %}
+                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200">
+                                        <i class="fas fa-shield-alt" aria-hidden="true"></i> Verified
+                                    </span>
+                                    {% else %}
+                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 ring-1 ring-slate-200">
+                                        <i class="fas fa-user-check" aria-hidden="true"></i> Verified when staff confirms
+                                    </span>
+                                    {% endif %}
+                                    {% else %}
+                                    <span class="text-sm text-slate-500">Optional — customer may not have submitted one yet</span>
+                                    {% endif %}
+                                </dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs font-semibold uppercase tracking-wider text-slate-400">WhatsApp receipt</dt>
+                                <dd class="mt-1 text-sm text-slate-700">
+                                    {% if open_whatsapp_url %}
+                                    <span class="text-emerald-700 font-medium"><i class="fab fa-whatsapp mr-1"></i> Ready — tap Open WhatsApp above</span>
+                                    {% elif booking_group.whatsapp_status == 'SENT' %}
+                                    <span class="text-emerald-700 font-medium"><i class="fab fa-whatsapp mr-1"></i> Delivered</span>
+                                    {% if booking_group.whatsapp_receipt_code %}
+                                    <span class="block mt-1 font-mono text-xs text-slate-500">Code {{ booking_group.whatsapp_receipt_code }}</span>
+                                    {% endif %}
+                                    {% elif booking_group.whatsapp_status == 'FAILED' %}
+                                    <span class="text-red-600 font-medium">Failed — {{ booking_group.whatsapp_error_message|default:"see resend below" }}</span>
+                                    {% else %}
+                                    <span class="text-slate-500">Queued after confirmation</span>
+                                    {% endif %}
+                                </dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs font-semibold uppercase tracking-wider text-slate-400">Refund</dt>
+                                <dd class="mt-1 text-sm font-medium text-slate-900">{{ booking_group.get_refund_status_display }}</dd>
+                            </div>
+                        </dl>
+
+                        {% if booking_group.status == 'Pending' and user.is_superuser or booking_group.status == 'Pending' and user_can_confirm and not booking_group.payment_waived %}
+                        <div class="mt-6 rounded-xl border border-blue-200 bg-blue-50/50 p-5">
+                            <h3 class="text-sm font-bold text-slate-900">Optional: update transaction reference</h3>
+                            <p class="mt-1 text-sm text-slate-600">Only if you need to correct the MoMo ID before confirming. Otherwise use <strong>Confirm reservation</strong> in the sidebar.</p>
+                            <form method="post" action="{% url 'admin_verify_payment' booking_group.id %}" class="mt-3 flex flex-col sm:flex-row gap-2">
+                                {% csrf_token %}
+                                <input type="text" name="transaction_id" value="{{ booking_group.transaction_id|default:'' }}" placeholder="MoMo transaction ID (optional)" class="flex-1 rounded-lg border-slate-300 text-sm px-3 py-2.5 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                                <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+                                    Save reference only
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <!-- Passenger -->
+                <section class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/80">
+                        <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white"><i class="fas fa-user" aria-hidden="true"></i></span>
+                        <div>
+                            <h2 class="text-base font-bold text-slate-900">Passenger</h2>
+                            <p class="text-sm text-slate-500">Contact details from the booking form.</p>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                            <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-xl font-bold text-white shadow-md">
+                                {{ booking_group.passenger.name|slice:":1"|upper }}
+                            </div>
+                            <div class="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Full name</p>
+                                    <p class="mt-1 font-semibold text-slate-900">{{ booking_group.passenger.name }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Email</p>
+                                    <p class="mt-1 text-sm text-slate-700 break-all">{{ booking_group.passenger.email }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Mobile / WhatsApp</p>
+                                    <p class="mt-1 font-mono text-sm font-semibold text-slate-900">
+                                        {% if booking_group.customer_phone or booking_group.passenger.phone %}
+                                        <a href="tel:{{ whatsapp_phone }}" class="hover:text-blue-700">{{ booking_group.customer_phone|default:booking_group.passenger.phone }}</a>
+                                        {% else %}—{% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Seats table -->
+                <section class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-700 text-white"><i class="fas fa-chair" aria-hidden="true"></i></span>
+                            <div>
+                                <h2 class="text-base font-bold text-slate-900">Seat allocation</h2>
+                                <p class="text-sm text-slate-500">{{ seat_count }} reserved seat{{ seat_count|pluralize }} on this departure.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-slate-200">
+                            <thead class="bg-slate-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Seat</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Status</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Reserved at</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 bg-white">
+                                {% for booking in booking_group.bookings.all %}
+                                <tr class="hover:bg-slate-50/50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 font-mono text-sm font-bold text-blue-800 ring-1 ring-blue-100">{{ booking.seat_number }}</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold
+                                            {% if booking.status == 'Confirmed' %}bg-emerald-100 text-emerald-800
+                                            {% elif booking.status == 'Pending' %}bg-amber-100 text-amber-800
+                                            {% else %}bg-red-100 text-red-800{% endif %}">{{ booking.status }}</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ booking.booking_date|date:"M j, Y · g:i A" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                {% if whatsapp_preview %}
+                {% if open_whatsapp_url or booking_group.status == 'Pending' %}
+                <section class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6">
+                    <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fab fa-whatsapp text-emerald-600" aria-hidden="true"></i>
+                        GARANTI WhatsApp receipt
+                    </h2>
+                    <p class="mt-1 text-sm text-slate-500">{% if open_whatsapp_url %}This message opens in WhatsApp — send from {{ company_phone_display }}.{% else %}Sent to <span class="font-mono font-medium text-slate-700">{{ whatsapp_phone|default:"—" }}</span> when you confirm.{% endif %}</p>
+                    <div class="mt-4 rounded-xl bg-[#ece5dd] p-4 max-w-xl">
+                        <p class="rounded-lg bg-white px-4 py-3 text-sm text-slate-800 shadow-sm whitespace-pre-wrap">{{ whatsapp_preview }}</p>
+                    </div>
+                </section>
+                {% endif %}
+                {% endif %}
+
+                {% if can_manage_refunds and booking_group.refund_status == 'NONE' and booking_group.status != 'Cancelled' %}
+                <section class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/80">
+                        <h2 class="text-base font-bold text-slate-900">Refund &amp; rebook</h2>
+                        <p class="text-sm text-slate-500">Use only after agreement with the passenger and your payment provider.</p>
+                    </div>
+                    <div class="p-6 flex flex-col sm:flex-row gap-4 sm:items-end">
+                        <form method="post" action="{% url 'admin_request_refund' booking_group.id %}" class="flex-1 flex flex-col sm:flex-row gap-2">
+                            {% csrf_token %}
+                            <input type="text" name="notes" placeholder="Internal notes (optional)" class="flex-1 rounded-lg border-slate-300 text-sm px-3 py-2.5 shadow-sm" />
+                            <button type="submit" class="rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-amber-700">Request refund</button>
+                        </form>
+                        <a href="{% url 'admin_rebook_booking' booking_group.id %}" class="inline-flex items-center justify-center rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-semibold text-indigo-800 hover:bg-indigo-100">Transfer to another trip</a>
+                    </div>
+                </section>
+                {% endif %}
+
+                {% if can_manage_refunds and booking_group.refund_status == 'REQUESTED' %}
+                <section class="rounded-2xl border border-amber-300 bg-amber-50 p-6">
+                    <p class="text-sm font-medium text-amber-950">Refund in progress — mark complete once funds are returned via your provider.</p>
+                    <form method="post" action="{% url 'admin_complete_refund' booking_group.id %}" class="mt-4">
+                        {% csrf_token %}
+                        <button type="submit" class="rounded-lg bg-amber-900 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-950" onclick="return confirm('Mark refund complete and cancel this reservation?');">Complete refund</button>
+                    </form>
+                </section>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    ['confirm-booking-form', 'confirm-booking-form-sidebar'].forEach(function (formId) {
+        var form = document.getElementById(formId);
+        if (!form) return;
+        form.addEventListener('submit', function () {
+            var btn = form.querySelector('button[type="submit"]');
+            if (btn) {
+                btn.disabled = true;
+                if (btn.textContent.indexOf('Confirm') >= 0) btn.textContent = 'Confirming…';
+            }
+        });
+    });
+    var waLink = document.getElementById('whatsapp-handoff-link');
+    if (waLink) {
+        setTimeout(function () { waLink.click(); }, 500);
+    }
+});
+</script>
+{% endblock %}

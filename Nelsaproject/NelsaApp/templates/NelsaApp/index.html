@@ -1,0 +1,633 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GARANTI EXPRESS — Book Bus Tickets Online</title>
+    <meta name="description" content="Travel comfortably across Cameroon. Book bus tickets online with GARANTI EXPRESS — secure booking, reliable schedules, and 24/7 support.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="canonical" href="{{ canonical_url }}">
+    <meta property="og:locale" content="en_CM">
+    <meta property="og:site_name" content="GARANTI EXPRESS">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ canonical_url }}">
+    <meta property="og:title" content="GARANTI EXPRESS — Book Bus Tickets Online">
+    <meta property="og:description" content="Travel comfortably across Cameroon. Book bus tickets online with GARANTI EXPRESS — secure booking, reliable schedules, and 24/7 support.">
+    <meta property="og:image" content="{{ og_image }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="GARANTI EXPRESS — Book Bus Tickets Online">
+    <meta name="twitter:description" content="Travel comfortably across Cameroon. Book bus tickets online with GARANTI EXPRESS — secure booking, reliable schedules, and 24/7 support.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                            950: '#0f172a',
+                        },
+                        accent: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                    },
+                    boxShadow: {
+                        'soft': '0 20px 50px -12px rgba(15, 23, 42, 0.15)',
+                        'card': '0 1px 3px rgba(15, 23, 42, 0.06), 0 8px 24px -4px rgba(15, 23, 42, 0.08)',
+                        'nav': '0 1px 0 rgba(15, 23, 42, 0.06)',
+                    },
+                },
+            },
+        };
+    </script>
+    <link rel="stylesheet" href="{% static 'garanti-brand-photos.css' %}">
+    <link rel="stylesheet" href="{% static 'home.css' %}">
+    <style>
+        .home-hero-overlay {
+            background: linear-gradient(
+                105deg,
+                rgba(15, 23, 42, 0.94) 0%,
+                rgba(15, 23, 42, 0.82) 34%,
+                rgba(15, 23, 42, 0.35) 52%,
+                rgba(15, 23, 42, 0.08) 68%,
+                rgba(30, 58, 138, 0.22) 100%
+            );
+        }
+        .nav-glass {
+            backdrop-filter: saturate(180%) blur(16px);
+            -webkit-backdrop-filter: saturate(180%) blur(16px);
+        }
+        .section-eyebrow {
+            letter-spacing: 0.14em;
+        }
+        .route-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #f59e0b, #2563eb, #4f46e5);
+            border-radius: 1rem 1rem 0 0;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-slate-700 home-body">
+
+    <!-- Navigation -->
+    <header id="site-header" class="fixed top-0 inset-x-0 z-50 border-b border-slate-200/70 bg-white/95 nav-glass shadow-nav transition-shadow duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex h-[4.25rem] items-center justify-between gap-4">
+                <a href="{% url 'index' %}" class="flex items-center gap-3 group shrink-0">
+                    <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-brand-800 to-indigo-700 text-amber-300 shadow-lg shadow-brand-900/20 ring-1 ring-amber-200/20">
+                        <i class="fas fa-crown text-lg" aria-hidden="true"></i>
+                    </span>
+                    <span class="hidden sm:block">
+                        <span class="block font-display text-[15px] font-extrabold tracking-tight text-slate-900 leading-none">GARANTI EXPRESS</span>
+                        <span class="mt-1 block text-[10px] font-semibold uppercase section-eyebrow text-accent-600">King of the Road · Est. 1989</span>
+                    </span>
+                </a>
+
+                <nav class="hidden lg:flex items-center gap-0.5" aria-label="Main">
+                    <a href="{% url 'index' %}" class="px-3.5 py-2 text-sm font-semibold text-brand-700 rounded-lg bg-brand-50">Home</a>
+                    <a href="{% url 'about_view' %}" class="px-3.5 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100/80 transition-colors">About</a>
+                    <a href="{% url 'services' %}" class="px-3.5 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100/80 transition-colors">Services</a>
+                    <a href="{% url 'routes' %}" class="px-3.5 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100/80 transition-colors">Routes</a>
+                    <a href="{% url 'contact' %}" class="px-3.5 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100/80 transition-colors">Contact</a>
+                </nav>
+
+                <div class="hidden sm:flex items-center gap-2.5 shrink-0">
+                    {% if user.is_authenticated %}
+                        {% if user.is_staff %}
+                        <a href="{% url 'admin_dashboard' %}" class="hidden md:inline text-sm font-medium text-slate-600 hover:text-slate-900 px-2">Dashboard</a>
+                        {% endif %}
+                        <a href="{% url 'user_profile' %}" class="text-sm font-medium text-slate-600 hover:text-slate-900 px-2">Profile</a>
+                        <a href="{% url 'logout' %}" class="inline-flex items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">Logout</a>
+                    {% else %}
+                        <a href="{% url 'Login' %}" class="text-sm font-semibold text-slate-700 hover:text-slate-900 px-2">Sign in</a>
+                        <a href="{% url 'booking' %}" class="inline-flex items-center gap-2 rounded-lg bg-brand-900 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-brand-900/25 hover:bg-brand-800 transition-colors">
+                            Book now
+                            <i class="fas fa-arrow-right text-xs opacity-90" aria-hidden="true"></i>
+                        </a>
+                    {% endif %}
+                </div>
+
+                <button type="button" class="lg:hidden mobile-menu-button inline-flex items-center justify-center rounded-lg p-2.5 text-slate-600 hover:bg-slate-100" aria-controls="mobile-menu" aria-expanded="false">
+                    <span class="sr-only">Menu</span>
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="lg:hidden hidden border-t border-slate-200 bg-white" id="mobile-menu">
+            <div class="px-4 py-4 space-y-1 max-w-7xl mx-auto">
+                <a href="{% url 'index' %}" class="block rounded-lg px-3 py-2.5 text-base font-semibold bg-brand-50 text-brand-800">Home</a>
+                <a href="{% url 'about_view' %}" class="block rounded-lg px-3 py-2.5 text-base font-medium text-slate-700 hover:bg-slate-50">About</a>
+                <a href="{% url 'services' %}" class="block rounded-lg px-3 py-2.5 text-base font-medium text-slate-700 hover:bg-slate-50">Services</a>
+                <a href="{% url 'routes' %}" class="block rounded-lg px-3 py-2.5 text-base font-medium text-slate-700 hover:bg-slate-50">Routes</a>
+                <a href="{% url 'contact' %}" class="block rounded-lg px-3 py-2.5 text-base font-medium text-slate-700 hover:bg-slate-50">Contact</a>
+                <a href="{% url 'booking' %}" class="block rounded-lg px-3 py-2.5 text-base font-bold text-brand-700">Book now</a>
+                <div class="pt-4 mt-4 border-t border-slate-200 flex flex-col gap-2">
+                    {% if user.is_authenticated %}
+                        {% if user.is_staff %}<a href="{% url 'admin_dashboard' %}" class="text-sm font-medium text-slate-700 px-3">Dashboard</a>{% endif %}
+                        <a href="{% url 'user_profile' %}" class="text-sm font-medium text-slate-700 px-3">Profile</a>
+                        <a href="{% url 'logout' %}" class="mx-3 inline-flex justify-center rounded-lg border border-slate-200 py-2.5 text-sm font-semibold">Logout</a>
+                    {% else %}
+                        <a href="{% url 'Login' %}" class="mx-3 inline-flex justify-center rounded-lg border border-slate-200 py-2.5 text-sm font-semibold">Sign in</a>
+                        <a href="{% url 'user-register' %}" class="mx-3 inline-flex justify-center rounded-lg bg-brand-900 py-2.5 text-sm font-bold text-white">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero -->
+        <section class="relative pt-[4.25rem]">
+            <div class="relative min-h-[min(90vh,820px)] flex items-stretch overflow-hidden">
+                <img class="garanti-brand-photo-hero absolute inset-0 h-full w-full" src="{% static 'garanti-home-bus.png' %}" alt="GARANTI EXPRESS coach at the terminal with GE crown logo" width="1920" height="1080" fetchpriority="high">
+                <div class="absolute inset-0 home-hero-overlay"></div>
+                <div class="absolute inset-0 home-hero-glow" aria-hidden="true"></div>
+
+                <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20 flex flex-col justify-center">
+                    <div class="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+                        <div class="lg:col-span-7">
+                            <div class="inline-flex items-center gap-2.5 rounded-full border border-amber-400/25 bg-amber-500/10 px-4 py-2 text-xs font-semibold uppercase section-eyebrow text-amber-100 backdrop-blur-md">
+                                <i class="fas fa-crown text-amber-300 text-[10px]" aria-hidden="true"></i>
+                                King of the Road · Est. 1989
+                            </div>
+                            <h1 class="mt-7 font-display text-4xl sm:text-5xl xl:text-[3.5rem] font-extrabold tracking-tight text-white leading-[1.06]">
+                                Premium coach travel,<br class="hidden sm:block">
+                                <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-white to-blue-100">booked in minutes</span>
+                            </h1>
+                            <p class="mt-6 max-w-xl text-lg text-slate-300/95 leading-relaxed">
+                                Douala, Yaoundé, Bamenda, Limbe &amp; Knambe — dependable schedules, transparent fares, and a terminal experience built for modern travellers.
+                            </p>
+                            <div class="mt-8 flex flex-wrap items-center gap-3">
+                                <a href="{% url 'booking' %}" class="inline-flex items-center gap-2.5 rounded-xl bg-white px-7 py-3.5 text-base font-bold text-brand-950 shadow-xl shadow-black/20 hover:bg-amber-50 transition-all hover:-translate-y-0.5">
+                                    <i class="fas fa-ticket-alt text-brand-700" aria-hidden="true"></i>
+                                    Book your seat
+                                </a>
+                                <a href="{% url 'routes' %}" class="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3.5 text-base font-semibold text-white backdrop-blur-sm hover:bg-white/10 transition-colors">
+                                    View routes
+                                    <i class="fas fa-chevron-right text-xs opacity-80" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                            <ul class="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-400">
+                                <li class="flex items-center gap-2"><i class="fas fa-shield-halved text-emerald-400/90" aria-hidden="true"></i> Secure booking</li>
+                                <li class="flex items-center gap-2"><i class="fab fa-whatsapp text-emerald-400/90" aria-hidden="true"></i> WhatsApp tickets</li>
+                                <li class="flex items-center gap-2"><i class="fas fa-mobile-screen text-emerald-400/90" aria-hidden="true"></i> MoMo payments</li>
+                            </ul>
+                        </div>
+
+                        <!-- Quick book card -->
+                        <div class="lg:col-span-5">
+                            <div class="rounded-2xl border border-white/15 bg-white/95 p-6 sm:p-8 shadow-soft backdrop-blur-xl">
+                                <p class="text-xs font-bold uppercase section-eyebrow text-brand-600">Start your trip</p>
+                                <h2 class="mt-2 font-display text-xl font-bold text-slate-900">Reserve your seat online</h2>
+                                <p class="mt-2 text-sm text-slate-500 leading-relaxed">Choose your route, pick a seat, and pay securely — confirmation sent to your WhatsApp.</p>
+                                <a href="{% url 'booking' %}" class="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-700 to-indigo-700 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-700/30 hover:from-brand-600 hover:to-indigo-600 transition-all">
+                                    Go to booking
+                                    <i class="fas fa-arrow-right text-xs" aria-hidden="true"></i>
+                                </a>
+                                <div class="mt-6 grid grid-cols-3 gap-3 border-t border-slate-100 pt-6">
+                                    <div class="text-center">
+                                        <p class="font-display text-2xl font-extrabold text-slate-900">35+</p>
+                                        <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-500">Years</p>
+                                    </div>
+                                    <div class="text-center border-x border-slate-100">
+                                        <p class="font-display text-2xl font-extrabold text-slate-900">24/7</p>
+                                        <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-500">Support</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <p class="font-display text-2xl font-extrabold text-slate-900">100%</p>
+                                        <p class="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-500">Online</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trust strip -->
+        <section class="relative z-20 -mt-10 mx-4 sm:mx-6 lg:mx-auto max-w-6xl">
+            <div class="home-trust-bar rounded-2xl bg-white px-6 py-6 sm:px-10 sm:py-7">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+                    <div class="flex items-center gap-4">
+                        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700"><i class="fas fa-route text-lg" aria-hidden="true"></i></span>
+                        <div>
+                            <p class="font-display font-bold text-slate-900">Nationwide routes</p>
+                            <p class="text-sm text-slate-500">Major corridors covered</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700"><i class="fas fa-shield-halved text-lg" aria-hidden="true"></i></span>
+                        <div>
+                            <p class="font-display font-bold text-slate-900">Verified tickets</p>
+                            <p class="text-sm text-slate-500">Digital receipts &amp; QR</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700"><i class="fab fa-whatsapp text-lg" aria-hidden="true"></i></span>
+                        <div>
+                            <p class="font-display font-bold text-slate-900">WhatsApp updates</p>
+                            <p class="text-sm text-slate-500">Booking confirmations</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent-500/15 text-accent-600"><i class="fas fa-crown text-lg" aria-hidden="true"></i></span>
+                        <div>
+                            <p class="font-display font-bold text-slate-900">King of the Road</p>
+                            <p class="text-sm text-slate-500">Trusted since 1989</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- City hubs -->
+        <section class="py-12 lg:py-16 home-section-mesh border-b border-slate-200/60">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-8">
+                    <p class="text-xs font-bold uppercase section-eyebrow text-brand-600">Our network</p>
+                    <h2 class="mt-2 font-display text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Five cities, one reliable service</h2>
+                </div>
+                <div class="flex flex-wrap justify-center gap-3">
+                    <a href="{% url 'booking' %}?from=Douala" class="home-city-pill inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800"><i class="fas fa-map-marker-alt text-brand-500 text-xs" aria-hidden="true"></i> Douala</a>
+                    <a href="{% url 'booking' %}?from=Yaounde" class="home-city-pill inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800"><i class="fas fa-map-marker-alt text-brand-500 text-xs" aria-hidden="true"></i> Yaounde</a>
+                    <a href="{% url 'booking' %}?from=Bamenda" class="home-city-pill inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800"><i class="fas fa-map-marker-alt text-brand-500 text-xs" aria-hidden="true"></i> Bamenda</a>
+                    <a href="{% url 'booking' %}?from=Limbe" class="home-city-pill inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800"><i class="fas fa-map-marker-alt text-brand-500 text-xs" aria-hidden="true"></i> Limbe</a>
+                    <a href="{% url 'booking' %}?from=Knambe" class="home-city-pill inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800"><i class="fas fa-map-marker-alt text-brand-500 text-xs" aria-hidden="true"></i> Knambe</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- How it works -->
+        <section class="pt-16 pb-8 lg:pt-20 home-section-mesh">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto">
+                    <p class="text-xs font-bold uppercase section-eyebrow text-brand-600">Simple process</p>
+                    <h2 class="mt-3 font-display text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Book in three steps</h2>
+                    <p class="mt-4 text-lg text-slate-600">From search to boarding — clear, fast, and professional.</p>
+                </div>
+                <div class="relative mt-14">
+                    <div class="home-steps-line hidden md:block" aria-hidden="true"></div>
+                    <ol class="grid gap-8 md:grid-cols-3 relative z-[1]">
+                    <li class="home-step-card relative rounded-2xl border border-slate-200/80 bg-white p-8 shadow-card">
+                        <span class="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-brand-800 to-indigo-700 text-sm font-bold text-white shadow-md">1</span>
+                        <h3 class="mt-5 font-display text-lg font-bold text-slate-900">Choose route &amp; seat</h3>
+                        <p class="mt-2 text-sm text-slate-600 leading-relaxed">Pick your cities, view the live seat map, and reserve in seconds.</p>
+                    </li>
+                    <li class="home-step-card relative rounded-2xl border border-slate-200/80 bg-white p-8 shadow-card">
+                        <span class="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-brand-800 to-indigo-700 text-sm font-bold text-white shadow-md">2</span>
+                        <h3 class="mt-5 font-display text-lg font-bold text-slate-900">Pay securely</h3>
+                        <p class="mt-2 text-sm text-slate-600 leading-relaxed">Pay with Mobile Money or card — quick confirmation on your phone.</p>
+                    </li>
+                    <li class="home-step-card relative rounded-2xl border border-slate-200/80 bg-white p-8 shadow-card">
+                        <span class="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-brand-800 to-indigo-700 text-sm font-bold text-white shadow-md">3</span>
+                        <h3 class="mt-5 font-display text-lg font-bold text-slate-900">Travel with confidence</h3>
+                        <p class="mt-2 text-sm text-slate-600 leading-relaxed">Get your ticket on WhatsApp and board at the GARANTI terminal.</p>
+                    </li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Terminal -->
+        <section class="py-16 lg:py-24 bg-gradient-to-b from-white to-slate-50/80">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                    <div class="relative order-2 lg:order-1">
+                        <div class="absolute -inset-4 rounded-3xl bg-gradient-to-br from-brand-600/10 to-indigo-500/5 blur-2xl -z-10" aria-hidden="true"></div>
+                        <figure class="overflow-hidden rounded-2xl shadow-soft ring-1 ring-slate-200/80 relative">
+                            <img
+                                class="garanti-brand-photo-feature w-full h-auto aspect-[16/10]"
+                                src="{% static 'garanti-home-bus.png' %}"
+                                alt="GARANTI EXPRESS coach at the terminal with GE crown logo"
+                                width="1200"
+                                height="720"
+                                loading="lazy"
+                                decoding="async"
+                            >
+                            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-900/80 via-slate-900/30 to-transparent px-5 py-4">
+                                <p class="text-xs font-bold uppercase tracking-wider text-amber-300">GARANTI EXPRESS</p>
+                                <p class="text-sm font-semibold text-white">Official terminal · GE crown fleet</p>
+                            </div>
+                        </figure>
+                    </div>
+                    <div class="order-1 lg:order-2">
+                        <p class="text-xs font-bold uppercase section-eyebrow text-brand-600">Our terminal</p>
+                        <h2 class="mt-3 font-display text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                            A station designed for professional travel
+                        </h2>
+                        <p class="mt-5 text-lg text-slate-600 leading-relaxed">
+                            Organised boarding, on-site fleet, and staff ready to assist with tickets, luggage, and VIP departures — before every journey.
+                        </p>
+                        <ul class="mt-10 space-y-5">
+                            <li class="flex gap-4">
+                                <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-white"><i class="fas fa-bus" aria-hidden="true"></i></span>
+                                <div>
+                                    <p class="font-semibold text-slate-900">Fleet on site</p>
+                                    <p class="mt-0.5 text-sm text-slate-600">Coaches prepared for interurban routes across Cameroon.</p>
+                                </div>
+                            </li>
+                            <li class="flex gap-4">
+                                <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-white"><i class="fas fa-headset" aria-hidden="true"></i></span>
+                                <div>
+                                    <p class="font-semibold text-slate-900">Passenger support</p>
+                                    <p class="mt-0.5 text-sm text-slate-600">Help with tickets, luggage, and boarding at the park.</p>
+                                </div>
+                            </li>
+                            <li class="flex gap-4">
+                                <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-white"><i class="fas fa-gem" aria-hidden="true"></i></span>
+                                <div>
+                                    <p class="font-semibold text-slate-900">VIP service</p>
+                                    <p class="mt-0.5 text-sm text-slate-600">Premium comfort for longer trips when you need it.</p>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="mt-10 flex flex-wrap gap-3">
+                            <a href="{% url 'booking' %}" class="inline-flex items-center gap-2 rounded-xl bg-brand-900 px-6 py-3 text-sm font-bold text-white hover:bg-brand-800 transition-colors shadow-md">
+                                Book your seat
+                            </a>
+                            <a href="{% url 'contact' %}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+                                Contact terminal
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services preview -->
+        <section class="py-14 bg-slate-900 text-white relative overflow-hidden">
+            <div class="absolute inset-0 opacity-30" style="background-image: url('https://images.unsplash.com/photo-1544620307-9fc099608409?auto=format&amp;fit=crop&amp;w=1600&amp;q=80'); background-size: cover; background-position: center;" aria-hidden="true"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/95 to-slate-900/80" aria-hidden="true"></div>
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
+                    <div>
+                        <p class="text-xs font-bold uppercase section-eyebrow text-amber-400">What we offer</p>
+                        <h2 class="mt-2 font-display text-2xl sm:text-3xl font-extrabold text-white">More than bus tickets</h2>
+                    </div>
+                    <a href="{% url 'services' %}" class="inline-flex items-center gap-2 text-sm font-semibold text-amber-200 hover:text-white transition-colors">
+                        All services <i class="fas fa-arrow-right text-xs" aria-hidden="true"></i>
+                    </a>
+                </div>
+                <div class="grid sm:grid-cols-3 gap-6">
+                    <a href="{% url 'booking' %}" class="group rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6 hover:bg-white/10 hover:border-amber-400/30 transition-all">
+                        <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600/30 text-blue-200 group-hover:bg-brand-500/40 transition-colors"><i class="fas fa-bus text-xl" aria-hidden="true"></i></span>
+                        <h3 class="mt-4 font-display font-bold text-white">Intercity coaches</h3>
+                        <p class="mt-2 text-sm text-slate-300">Daily departures on major corridors with clear fares.</p>
+                    </a>
+                    <a href="{% url 'services' %}" class="group rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6 hover:bg-white/10 hover:border-amber-400/30 transition-all">
+                        <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/20 text-amber-300 group-hover:bg-amber-500/30 transition-colors"><i class="fas fa-gem text-xl" aria-hidden="true"></i></span>
+                        <h3 class="mt-4 font-display font-bold text-white">VIP travel</h3>
+                        <p class="mt-2 text-sm text-slate-300">Extra comfort and amenities on select routes.</p>
+                    </a>
+                    <a href="{% url 'services' %}" class="group rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6 hover:bg-white/10 hover:border-amber-400/30 transition-all">
+                        <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-300 group-hover:bg-emerald-500/30 transition-colors"><i class="fas fa-box text-xl" aria-hidden="true"></i></span>
+                        <h3 class="mt-4 font-display font-bold text-white">Mail services</h3>
+                        <p class="mt-2 text-sm text-slate-300">Send parcels between cities on scheduled departures.</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Popular routes -->
+        <section class="py-16 lg:py-24">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+                    <div class="max-w-xl">
+                        <p class="text-xs font-bold uppercase section-eyebrow text-brand-600">Destinations</p>
+                        <h2 class="mt-2 font-display text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Popular routes</h2>
+                        <p class="mt-4 text-lg text-slate-600">Transparent pricing — book your preferred departure in minutes.</p>
+                    </div>
+                    <a href="{% url 'routes' %}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 shadow-sm shrink-0">
+                        Full route list
+                    </a>
+                </div>
+
+                <div class="grid gap-8 lg:grid-cols-3">
+                    <article class="home-route-card route-card group relative flex flex-col overflow-hidden rounded-2xl bg-white border border-slate-200/80 shadow-card transition-all duration-300 hover:shadow-soft hover:-translate-y-1">
+                        <div class="relative h-48 overflow-hidden bg-slate-200">
+                            <img class="home-route-img garanti-brand-photo-route h-full w-full" src="{% static 'garanti-home-bus.png' %}" alt="GARANTI EXPRESS coach — Bamenda to Douala route" loading="lazy" width="900" height="480" decoding="async">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/25 to-transparent"></div>
+                            <div class="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-wide text-white/80">Route</p>
+                                    <h3 class="font-display text-lg font-bold text-white">Bamenda → Douala</h3>
+                                </div>
+                                <span class="rounded-lg bg-white/95 px-3 py-1.5 text-sm font-extrabold text-brand-700 shadow-sm">6,000 FCFA</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-1 flex-col p-6">
+                            <p class="flex items-center gap-2 text-sm text-slate-500"><i class="far fa-clock text-brand-500" aria-hidden="true"></i> Approx. 8 hours</p>
+                            <a href="{% url 'booking' %}" class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-900 py-3 text-sm font-bold text-white hover:bg-brand-800 transition-colors">
+                                Book this route
+                            </a>
+                        </div>
+                    </article>
+
+                    <article class="home-route-card route-card group relative flex flex-col overflow-hidden rounded-2xl bg-white border border-slate-200/80 shadow-card transition-all duration-300 hover:shadow-soft hover:-translate-y-1">
+                        <div class="relative h-48 overflow-hidden bg-slate-200">
+                            <img class="home-route-img garanti-brand-photo-route h-full w-full" src="{% static 'garanti-home-bus.png' %}" alt="GARANTI EXPRESS coach — Douala to Yaoundé route" loading="lazy" width="900" height="480" decoding="async">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/25 to-transparent"></div>
+                            <div class="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-wide text-white/80">Route</p>
+                                    <h3 class="font-display text-lg font-bold text-white">Douala → Yaoundé</h3>
+                                </div>
+                                <span class="rounded-lg bg-white/95 px-3 py-1.5 text-sm font-extrabold text-brand-700 shadow-sm">4,000 FCFA</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-1 flex-col p-6">
+                            <p class="flex items-center gap-2 text-sm text-slate-500"><i class="far fa-clock text-brand-500" aria-hidden="true"></i> Approx. 2 hours</p>
+                            <a href="{% url 'booking' %}" class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-900 py-3 text-sm font-bold text-white hover:bg-brand-800 transition-colors">
+                                Book this route
+                            </a>
+                        </div>
+                    </article>
+
+                    <article class="home-route-card route-card group relative flex flex-col overflow-hidden rounded-2xl bg-white border border-slate-200/80 shadow-card transition-all duration-300 hover:shadow-soft hover:-translate-y-1">
+                        <div class="relative h-48 overflow-hidden bg-slate-200">
+                            <img class="home-route-img garanti-brand-photo-route h-full w-full" src="{% static 'garanti-home-bus.png' %}" alt="GARANTI EXPRESS coach — Yaoundé to Bamenda route" loading="lazy" width="900" height="480" decoding="async">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/25 to-transparent"></div>
+                            <div class="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-wide text-white/80">Route</p>
+                                    <h3 class="font-display text-lg font-bold text-white">Yaoundé → Bamenda</h3>
+                                </div>
+                                <span class="rounded-lg bg-white/95 px-3 py-1.5 text-sm font-extrabold text-brand-700 shadow-sm">9,000 FCFA</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-1 flex-col p-6">
+                            <p class="flex items-center gap-2 text-sm text-slate-500"><i class="far fa-clock text-brand-500" aria-hidden="true"></i> Approx. 10 hours</p>
+                            <a href="{% url 'booking' %}" class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-900 py-3 text-sm font-bold text-white hover:bg-brand-800 transition-colors">
+                                Book this route
+                            </a>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Why choose -->
+        <section class="bg-white border-y border-slate-200/80 py-16 lg:py-24">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="lg:flex lg:items-end lg:justify-between lg:gap-12 mb-14">
+                    <div class="max-w-xl">
+                        <p class="text-xs font-bold uppercase section-eyebrow text-brand-600">Why travel with us</p>
+                        <h2 class="mt-2 font-display text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Built for reliability</h2>
+                        <p class="mt-4 text-lg text-slate-600">Every detail — from booking to boarding — is designed to feel clear and professional.</p>
+                    </div>
+                </div>
+                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50/50 p-7 hover:bg-white hover:shadow-card hover:border-slate-200/80 transition-all">
+                        <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-900 text-white"><i class="fas fa-shield-halved" aria-hidden="true"></i></span>
+                        <h3 class="mt-5 font-display font-bold text-slate-900">Secure booking</h3>
+                        <p class="mt-2 text-sm text-slate-600 leading-relaxed">Your data and payments are handled with care.</p>
+                    </div>
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50/50 p-7 hover:bg-white hover:shadow-card hover:border-slate-200/80 transition-all">
+                        <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-900 text-white"><i class="fas fa-headset" aria-hidden="true"></i></span>
+                        <h3 class="mt-5 font-display font-bold text-slate-900">24/7 support</h3>
+                        <p class="mt-2 text-sm text-slate-600 leading-relaxed">Reach us before or during your journey.</p>
+                    </div>
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50/50 p-7 hover:bg-white hover:shadow-card hover:border-slate-200/80 transition-all">
+                        <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-900 text-white"><i class="fas fa-couch" aria-hidden="true"></i></span>
+                        <h3 class="mt-5 font-display font-bold text-slate-900">Modern fleet</h3>
+                        <p class="mt-2 text-sm text-slate-600 leading-relaxed">Coaches selected for comfort on longer routes.</p>
+                    </div>
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50/50 p-7 hover:bg-white hover:shadow-card hover:border-slate-200/80 transition-all">
+                        <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-900 text-white"><i class="fas fa-bolt" aria-hidden="true"></i></span>
+                        <h3 class="mt-5 font-display font-bold text-slate-900">Fast checkout</h3>
+                        <p class="mt-2 text-sm text-slate-600 leading-relaxed">Pick seats and complete payment in guided steps.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="py-16 lg:py-24">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="home-cta-panel relative overflow-hidden rounded-3xl px-8 py-14 sm:px-14 lg:py-20 ring-1 ring-white/10">
+                    <div class="garanti-brand-bg absolute inset-0 opacity-15" style="background-image: url('{% static 'garanti-home-bus.png' %}');" aria-hidden="true"></div>
+                    <div class="absolute inset-0 bg-gradient-to-br from-brand-950/90 via-brand-900/85 to-indigo-950/90" aria-hidden="true"></div>
+                    <div class="relative z-10 max-w-2xl">
+                        <p class="text-xs font-bold uppercase section-eyebrow text-accent-400">Ready when you are</p>
+                        <h2 class="mt-4 font-display text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Your next journey starts here</h2>
+                        <p class="mt-4 text-lg text-slate-300 leading-relaxed">Search schedules, choose your seat, and travel with GARANTI EXPRESS — Cameroon’s King of the Road.</p>
+                        <div class="mt-10 flex flex-wrap gap-4">
+                            <a href="{% url 'booking' %}" class="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-base font-bold text-brand-950 shadow-xl hover:bg-blue-50 transition-colors">
+                                Start booking
+                            </a>
+                            <a href="{{ company_phone_tel }}" class="inline-flex items-center gap-2 rounded-xl border border-white/25 px-8 py-3.5 text-base font-semibold text-white hover:bg-white/10 transition-colors">
+                                <i class="fas fa-phone text-sm" aria-hidden="true"></i>
+                                {{ company_phone_display }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-brand-950 text-slate-400">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+                <div class="lg:col-span-2">
+                    <div class="flex items-center gap-3">
+                        <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-indigo-600 text-amber-200 ring-1 ring-amber-400/20">
+                            <i class="fas fa-crown" aria-hidden="true"></i>
+                        </span>
+                        <span class="font-display text-lg font-extrabold text-white">GARANTI EXPRESS</span>
+                    </div>
+                    <p class="mt-5 max-w-md text-sm leading-relaxed">
+                        Intercity bus and parcel services across Cameroon — professional terminals, transparent fares, and booking you can trust since 1989.
+                    </p>
+                    <p class="mt-3 text-xs font-semibold uppercase section-eyebrow text-accent-500">King of the Road</p>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold uppercase section-eyebrow text-slate-500">Contact</h4>
+                    <ul class="mt-5 space-y-3 text-sm">
+                        <li>
+                            <a href="mailto:garantiexpress@gmail.com" class="flex items-center gap-3 hover:text-white transition-colors">
+                                <i class="fas fa-envelope w-4 text-brand-400" aria-hidden="true"></i>
+                                garantiexpress@gmail.com
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ company_phone_tel }}" class="flex items-center gap-3 hover:text-white transition-colors">
+                                <i class="fas fa-phone w-4 text-brand-400" aria-hidden="true"></i>
+                                {{ company_phone_display }}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://wa.me/{{ company_phone_wa }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 hover:text-white transition-colors">
+                                <i class="fab fa-whatsapp w-4 text-emerald-400" aria-hidden="true"></i>
+                                WhatsApp
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold uppercase section-eyebrow text-slate-500">Explore</h4>
+                    <ul class="mt-5 space-y-2.5 text-sm">
+                        <li><a href="{% url 'booking' %}" class="hover:text-white transition-colors">Book a ride</a></li>
+                        <li><a href="{% url 'routes' %}" class="hover:text-white transition-colors">Routes</a></li>
+                        <li><a href="{% url 'services' %}" class="hover:text-white transition-colors">Services</a></li>
+                        <li><a href="{% url 'about_view' %}" class="hover:text-white transition-colors">About us</a></li>
+                        <li><a href="{% url 'contact' %}" class="hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-14 pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+                <p>&copy; {% now "Y" %} GARANTI EXPRESS. All rights reserved.</p>
+                <p>Cameroon · Intercity bus &amp; mail services</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var btn = document.querySelector('.mobile-menu-button');
+            var menu = document.getElementById('mobile-menu');
+            if (btn && menu) {
+                btn.addEventListener('click', function() {
+                    menu.classList.toggle('hidden');
+                });
+            }
+            var header = document.getElementById('site-header');
+            if (header) {
+                window.addEventListener('scroll', function() {
+                    var scrolled = window.scrollY > 8;
+                    header.classList.toggle('shadow-md', scrolled);
+                    header.classList.toggle('home-nav-scrolled', scrolled);
+                }, { passive: true });
+            }
+        });
+    </script>
+</body>
+</html>

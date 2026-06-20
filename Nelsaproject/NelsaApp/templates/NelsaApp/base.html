@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GARANTI EXPRESS — Bus tickets online in Cameroon{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{{ seo_default_description }}{% endblock %}">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="theme-color" content="#1e3a8a">
+    <link rel="canonical" href="{% block canonical_link %}{{ canonical_url }}{% endblock %}">
+    <meta property="og:locale" content="en_CM">
+    <meta property="og:site_name" content="GARANTI EXPRESS">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{% block og_url %}{{ canonical_url }}{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}GARANTI EXPRESS — Book bus tickets online in Cameroon{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ seo_default_description }}{% endblock %}">
+    <meta property="og:image" content="{{ og_image }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}GARANTI EXPRESS — Book bus tickets online in Cameroon{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_desc %}{{ seo_default_description }}{% endblock %}">
+    <meta name="twitter:image" content="{{ og_image }}">
+    <script type="application/ld+json">{{ organization_json_ld|safe }}</script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com/3.4.5?plugins=forms@0.5.7,typography@0.5.13,aspect-ratio@0.4.2,container-queries@0.1.1"></script>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="{% static 'garanti-brand-photos.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="font-['Inter'] bg-gray-50">
+    <nav class="bg-white shadow-sm fixed w-full z-50">
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        {% include 'NelsaApp/includes/brand_mark.html' %}
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="{% url 'index' %}" class="border-transparent text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 text-sm font-medium">Home</a>
+                        <a href="{% url 'about_view' %}" class="border-transparent text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 text-sm font-medium">About</a>
+                        <a href="{% url 'services' %}" class="border-transparent text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 text-sm font-medium">Services</a>
+                        <a href="{% url 'routes' %}" class="border-transparent text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 text-sm font-medium">Routes</a>
+                        <a href="{% url 'contact' %}" class="border-transparent text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 text-sm font-medium">Contact</a>
+                        <a href="{% url 'booking' %}" class="border-transparent text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 text-sm font-medium">Book Rides</a>
+                    </div>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        {% if user.is_staff %}
+                            <a href="{% url 'admin_dashboard' %}" class="text-black hover:text-gray-800">Admin Dashboard</a>
+                        {% endif %}
+                        <a href="{% url 'user_profile' %}" class="text-black hover:text-gray-800">My Profile</a>
+                        <a href="{% url 'logout' %}" class="text-black hover:text-gray-800">Logout</a>
+                    {% else %}
+                        <a href="{% url 'Login' %}" class="text-black hover:text-gray-800">Login</a>
+                        <a href="{% url 'user-register' %}" class="text-black hover:text-gray-800">Register</a>
+                    {% endif %}
+                </div>
+                <div class="-mr-2 flex items-center sm:hidden">
+                    <button type="button" class="mobile-menu-button bg-white inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-black" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Open main menu</span>
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu, show/hide based on menu state. -->
+        <div class="sm:hidden hidden" id="mobile-menu">
+            <div class="pt-2 pb-3 space-y-1">
+                <a href="{% url 'index' %}" class="bg-gray-900 text-white block pl-3 pr-4 py-2 border-l-4 border-gray-900 text-base font-medium">Home</a>
+                <a href="{% url 'about_view' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium">About</a>
+                <a href="{% url 'services' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium">Services</a>
+                <a href="{% url 'routes' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium">Routes</a>
+                <a href="{% url 'contact' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium">Contact</a>
+                <a href="{% url 'booking' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium">Book Rides</a>
+            </div>
+            <div class="pt-4 pb-3 border-t border-gray-200">
+                {% if user.is_authenticated %}
+                    {% if user.is_staff %}
+                        <a href="{% url 'admin_dashboard' %}" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Admin Dashboard</a>
+                    {% endif %}
+                    <a href="{% url 'user_profile' %}" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">My Profile</a>
+                    <a href="{% url 'logout' %}" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Logout</a>
+                {% else %}
+                    <a href="{% url 'Login' %}" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Login</a>
+                    <a href="{% url 'user-register' %}" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-16">
+        {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+            {% for message in messages %}
+            <div class="mb-3 rounded-lg border px-4 py-3 text-sm font-medium
+                {% if message.tags == 'error' %}border-red-200 bg-red-50 text-red-800
+                {% elif message.tags == 'warning' %}border-amber-200 bg-amber-50 text-amber-900
+                {% elif message.tags == 'success' %}border-emerald-200 bg-emerald-50 text-emerald-900
+                {% else %}border-blue-200 bg-blue-50 text-blue-900{% endif %}" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-gray-900 text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">GARANTI EXPRESS</h3>
+                    <p class="text-gray-400">Your trusted partner for comfortable and reliable bus transportation across Cameroon.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'index' %}" class="text-gray-400 hover:text-white">Home</a></li>
+                        <li><a href="{% url 'about_view' %}" class="text-gray-400 hover:text-white">About Us</a></li>
+                        <li><a href="{% url 'routes' %}" class="text-gray-400 hover:text-white">Routes</a></li>
+                        <li><a href="{% url 'services' %}" class="text-gray-400 hover:text-white">Services</a></li>
+                        <li><a href="{% url 'contact' %}" class="text-gray-400 hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><i class="fas fa-phone mr-2"></i> <a href="{{ company_phone_tel }}" class="hover:text-white transition-colors">{{ company_phone_display }}</a></li>
+                        <li><i class="fas fa-envelope mr-2"></i> info@garantiexpress.com</li>
+                        <li><i class="fas fa-map-marker-alt mr-2"></i> Douala, Cameroon</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+                <p>&copy; {% now "Y" %} GARANTI EXPRESS. All rights reserved.</p>
+                <p class="mt-2 space-x-3">
+                    <a href="{% url 'sitemap_xml' %}" class="hover:text-white">Sitemap</a>
+                    <span aria-hidden="true">·</span>
+                    <a href="{% url 'robots_txt' %}" class="hover:text-white">Robots</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.querySelector('.mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

@@ -1,0 +1,344 @@
+{% extends 'NelsaApp/base.html' %}
+{% load static %}
+
+{% block title %}About Us — GARANTI EXPRESS{% endblock %}
+{% block meta_description %}Learn about GARANTI EXPRESS — Cameroon's trusted interurban bus operator since 1989. Safety, reliability, and comfortable travel between Douala, Yaoundé, Bamenda, and beyond.{% endblock %}
+
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: {
+                    sans: ['Inter', 'system-ui', 'sans-serif'],
+                    display: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+                },
+                colors: {
+                    brand: {
+                        50: '#eff6ff',
+                        600: '#2563eb',
+                        700: '#1d4ed8',
+                        800: '#1e40af',
+                        900: '#1e3a8a',
+                        950: '#0f172a',
+                    },
+                    accent: { 500: '#f59e0b', 600: '#d97706' },
+                },
+                boxShadow: {
+                    card: '0 1px 3px rgba(15,23,42,0.06), 0 12px 32px -8px rgba(15,23,42,0.1)',
+                },
+            },
+        },
+    };
+</script>
+<link rel="stylesheet" href="{% static 'garanti-brand-photos.css' %}">
+<style>
+    .about-hero-overlay {
+        background: linear-gradient(
+            110deg,
+            rgba(15, 23, 42, 0.93) 0%,
+            rgba(30, 58, 138, 0.72) 42%,
+            rgba(15, 23, 42, 0.14) 62%,
+            rgba(15, 23, 42, 0.55) 100%
+        );
+    }
+    .about-eyebrow { letter-spacing: 0.14em; }
+    .about-value-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .about-value-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 40px -12px rgba(15, 23, 42, 0.14);
+    }
+    .about-timeline-line {
+        background: linear-gradient(180deg, #2563eb 0%, #6366f1 50%, #cbd5e1 100%);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-slate-50 font-sans antialiased text-slate-700 -mt-16">
+
+    <!-- Hero -->
+    <section class="relative overflow-hidden">
+        <div class="relative min-h-[min(58vh,480px)] flex items-end">
+            <img class="garanti-brand-photo-hero absolute inset-0 h-full w-full" src="{% static 'garanti-home-bus.png' %}" alt="GARANTI EXPRESS coach at the terminal with GE crown logo" width="1600" height="900" fetchpriority="high">
+            <div class="absolute inset-0 about-hero-overlay"></div>
+            <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 sm:pb-24 lg:pb-28">
+                <nav class="mb-6 text-sm text-slate-300" aria-label="Breadcrumb">
+                    <ol class="flex flex-wrap items-center gap-2">
+                        <li><a href="{% url 'index' %}" class="hover:text-white transition-colors">Home</a></li>
+                        <li aria-hidden="true" class="text-slate-500">/</li>
+                        <li class="font-medium text-white" aria-current="page">About</li>
+                    </ol>
+                </nav>
+                <p class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[11px] font-bold uppercase about-eyebrow text-blue-100 backdrop-blur-sm">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true"></span>
+                    Est. 1989 · Cameroon
+                </p>
+                <h1 class="mt-5 font-display text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold tracking-tight text-white max-w-3xl leading-[1.08]">
+                    Moving Cameroon with confidence since 1989
+                </h1>
+                <p class="mt-5 max-w-2xl text-lg sm:text-xl text-slate-200 leading-relaxed">
+                    GARANTI EXPRESS is a leading interurban bus operator connecting major cities with safe, comfortable coaches and a passenger-first service culture.
+                </p>
+                <div class="mt-6 inline-flex items-center gap-2 rounded-lg border border-amber-400/35 bg-amber-500/15 px-4 py-2 text-sm font-semibold text-amber-50">
+                    <i class="fas fa-crown text-amber-300 text-xs" aria-hidden="true"></i>
+                    King of the Road
+                </div>
+                <div class="mt-8 flex flex-wrap gap-3">
+                    <a href="{% url 'booking' %}" class="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-bold text-brand-950 shadow-lg hover:bg-blue-50 transition-colors">
+                        Book a trip
+                        <i class="fas fa-arrow-right text-xs text-brand-700" aria-hidden="true"></i>
+                    </a>
+                    <a href="{% url 'routes' %}" class="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-sm hover:bg-white/15 transition-colors">
+                        View routes
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats strip -->
+        <div class="relative z-20 -mt-10 sm:-mt-12 px-4 sm:px-6 lg:px-8 pb-4">
+            <div class="max-w-5xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div class="rounded-2xl border border-slate-200/80 bg-white px-5 py-5 shadow-card text-center">
+                    <p class="font-display text-2xl sm:text-3xl font-extrabold text-brand-800">35+</p>
+                    <p class="mt-1 text-xs sm:text-sm font-medium text-slate-500">Years of service</p>
+                </div>
+                <div class="rounded-2xl border border-slate-200/80 bg-white px-5 py-5 shadow-card text-center">
+                    <p class="font-display text-2xl sm:text-3xl font-extrabold text-brand-800">5</p>
+                    <p class="mt-1 text-xs sm:text-sm font-medium text-slate-500">Major city hubs</p>
+                </div>
+                <div class="rounded-2xl border border-slate-200/80 bg-white px-5 py-5 shadow-card text-center">
+                    <p class="font-display text-2xl sm:text-3xl font-extrabold text-brand-800">24/7</p>
+                    <p class="mt-1 text-xs sm:text-sm font-medium text-slate-500">Online booking</p>
+                </div>
+                <div class="rounded-2xl border border-slate-200/80 bg-white px-5 py-5 shadow-card text-center col-span-2 lg:col-span-1">
+                    <p class="font-display text-lg sm:text-xl font-extrabold text-brand-800 leading-tight">King of the Road</p>
+                    <p class="mt-1 text-xs sm:text-sm font-medium text-slate-500">Our promise</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Story -->
+    <section class="py-16 lg:py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+                <div class="lg:col-span-5 lg:sticky lg:top-24">
+                    <p class="text-xs font-bold uppercase about-eyebrow text-brand-600">Our story</p>
+                    <h2 class="mt-3 font-display text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                        Built on trust, driven by people
+                    </h2>
+                    <blockquote class="mt-8 relative rounded-2xl border-l-4 border-brand-600 bg-white px-6 py-5 shadow-card">
+                        <p class="text-slate-700 leading-relaxed italic">
+                            “King of the Road” is more than a slogan — it is our standard for punctuality, vehicle care, and respectful service on every departure.
+                        </p>
+                    </blockquote>
+                    <p class="mt-6 text-base sm:text-lg text-slate-600 leading-relaxed">
+                        Founded in <strong class="text-slate-900 font-semibold">1989</strong>, GARANTI EXPRESS has grown into a trusted name in Cameroon’s interurban transport sector. We connect communities across the country with modern coaches maintained for long-distance comfort and safety.
+                    </p>
+                    <p class="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
+                        Today, passengers can plan trips online, choose seats, and pay securely — while our terminal teams continue the hands-on support that has defined us for decades.
+                    </p>
+                    <a href="{% url 'services' %}" class="mt-8 inline-flex items-center gap-2 text-sm font-bold text-brand-700 hover:text-brand-900 transition-colors">
+                        Explore our services
+                        <i class="fas fa-arrow-right text-xs" aria-hidden="true"></i>
+                    </a>
+                </div>
+
+                <div class="lg:col-span-7 space-y-8">
+                    <figure class="overflow-hidden rounded-2xl shadow-card ring-1 ring-slate-200/80 bg-slate-100">
+                        <div class="aspect-[16/10] w-full">
+                            <img class="garanti-brand-photo-feature h-full w-full" src="{% static 'garanti-home-bus.png' %}" alt="GARANTI EXPRESS terminal and fleet with GE crown logo" width="1200" height="750" loading="lazy" decoding="async">
+                        </div>
+                        <figcaption class="flex items-center gap-4 border-t border-slate-100 bg-white px-5 py-4">
+                            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-800 to-indigo-700 text-white shadow-md">
+                                <i class="fas fa-building" aria-hidden="true"></i>
+                            </span>
+                            <div>
+                                <p class="text-sm font-bold text-slate-900">Terminal operations</p>
+                                <p class="text-xs text-slate-500 mt-0.5">Professional staff and organised departures at our key hubs.</p>
+                            </div>
+                        </figcaption>
+                    </figure>
+
+                    <!-- Timeline -->
+                    <div class="rounded-2xl border border-slate-200/80 bg-white p-6 sm:p-8 shadow-card">
+                        <h3 class="font-display text-lg font-bold text-slate-900">Company milestones</h3>
+                        <ol class="mt-6 space-y-6">
+                            <li class="flex gap-4">
+                                <div class="flex flex-col items-center shrink-0">
+                                    <span class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50 text-xs font-bold text-brand-800 ring-2 ring-brand-600">89</span>
+                                    <span class="mt-2 w-0.5 flex-1 min-h-[2rem] about-timeline-line rounded-full" aria-hidden="true"></span>
+                                </div>
+                                <div class="pb-2">
+                                    <p class="text-sm font-bold text-slate-900">1989 — Founded</p>
+                                    <p class="mt-1 text-sm text-slate-600 leading-relaxed">GARANTI EXPRESS begins interurban coach services in Cameroon.</p>
+                                </div>
+                            </li>
+                            <li class="flex gap-4">
+                                <div class="flex flex-col items-center shrink-0">
+                                    <span class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50 text-xs font-bold text-brand-800 ring-2 ring-brand-200">00s</span>
+                                    <span class="mt-2 w-0.5 flex-1 min-h-[2rem] about-timeline-line rounded-full opacity-60" aria-hidden="true"></span>
+                                </div>
+                                <div class="pb-2">
+                                    <p class="text-sm font-bold text-slate-900">Network expansion</p>
+                                    <p class="mt-1 text-sm text-slate-600 leading-relaxed">Routes extended to major hubs including Douala, Yaoundé, and Bamenda.</p>
+                                </div>
+                            </li>
+                            <li class="flex gap-4">
+                                <div class="flex flex-col items-center shrink-0">
+                                    <span class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50 text-xs font-bold text-brand-800 ring-2 ring-brand-200">
+                                        <i class="fas fa-globe text-[10px]" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-slate-900">Digital booking era</p>
+                                    <p class="mt-1 text-sm text-slate-600 leading-relaxed">Online seat selection, secure payments, and digital confirmations for a smoother passenger experience.</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values -->
+    <section class="border-y border-slate-200/80 bg-white py-16 lg:py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-2xl">
+                <p class="text-xs font-bold uppercase about-eyebrow text-brand-600">What we stand for</p>
+                <h2 class="mt-3 font-display text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Mission &amp; values</h2>
+                <p class="mt-4 text-lg text-slate-600 leading-relaxed">Every journey reflects our commitment to safety, reliability, and respectful service.</p>
+            </div>
+            <div class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <article class="about-value-card rounded-2xl border border-slate-100 bg-slate-50/60 p-7 hover:border-blue-200 hover:bg-white">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-800 to-indigo-700 text-white shadow-lg shadow-brand-900/20">
+                        <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="mt-5 font-display text-lg font-bold text-slate-900">Safety first</h3>
+                    <p class="mt-2 text-sm text-slate-600 leading-relaxed">Trained crews, disciplined maintenance, and operational standards that put passenger wellbeing above all else.</p>
+                </article>
+                <article class="about-value-card rounded-2xl border border-slate-100 bg-slate-50/60 p-7 hover:border-blue-200 hover:bg-white">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-800 to-indigo-700 text-white shadow-lg shadow-brand-900/20">
+                        <i class="fas fa-clock" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="mt-5 font-display text-lg font-bold text-slate-900">Punctuality</h3>
+                    <p class="mt-2 text-sm text-slate-600 leading-relaxed">Honest schedules and clear communication so you can plan connections and arrivals with confidence.</p>
+                </article>
+                <article class="about-value-card rounded-2xl border border-slate-100 bg-slate-50/60 p-7 hover:border-blue-200 hover:bg-white">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-800 to-indigo-700 text-white shadow-lg shadow-brand-900/20">
+                        <i class="fas fa-couch" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="mt-5 font-display text-lg font-bold text-slate-900">Comfort</h3>
+                    <p class="mt-2 text-sm text-slate-600 leading-relaxed">Coaches equipped for long-distance travel — seating, climate, and cabin care designed for the road ahead.</p>
+                </article>
+                <article class="about-value-card rounded-2xl border border-slate-100 bg-slate-50/60 p-7 hover:border-blue-200 hover:bg-white">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-800 to-indigo-700 text-white shadow-lg shadow-brand-900/20">
+                        <i class="fas fa-handshake" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="mt-5 font-display text-lg font-bold text-slate-900">Integrity</h3>
+                    <p class="mt-2 text-sm text-slate-600 leading-relaxed">Transparent pricing, fair treatment, and accountable service at the terminal and online.</p>
+                </article>
+                <article class="about-value-card rounded-2xl border border-slate-100 bg-slate-50/60 p-7 hover:border-blue-200 hover:bg-white">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-800 to-indigo-700 text-white shadow-lg shadow-brand-900/20">
+                        <i class="fas fa-headset" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="mt-5 font-display text-lg font-bold text-slate-900">Passenger support</h3>
+                    <p class="mt-2 text-sm text-slate-600 leading-relaxed">Responsive assistance before, during, and after your trip — by phone, WhatsApp, and at our counters.</p>
+                </article>
+                <article class="about-value-card rounded-2xl border border-slate-100 bg-slate-50/60 p-7 hover:border-blue-200 hover:bg-white">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-800 to-indigo-700 text-white shadow-lg shadow-brand-900/20">
+                        <i class="fas fa-leaf" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="mt-5 font-display text-lg font-bold text-slate-900">Responsible operations</h3>
+                    <p class="mt-2 text-sm text-slate-600 leading-relaxed">Efficient fleet use and continuous improvement to serve more passengers without compromising quality.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Route coverage -->
+    <section class="py-16 lg:py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="rounded-3xl overflow-hidden bg-gradient-to-br from-brand-950 via-brand-900 to-indigo-950 shadow-card">
+                <div class="grid grid-cols-1 lg:grid-cols-2">
+                    <div class="p-8 sm:p-10 lg:p-12">
+                        <p class="text-xs font-bold uppercase about-eyebrow text-blue-200">Network</p>
+                        <h2 class="mt-3 font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Connecting Cameroon’s key cities</h2>
+                        <p class="mt-4 text-blue-100/90 leading-relaxed">We operate interurban services linking economic centres and regional hubs — with schedules designed for business travellers, students, and families alike.</p>
+                        <ul class="mt-8 space-y-4">
+                            <li class="flex items-center gap-3 text-white/95">
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 text-sm"><i class="fas fa-map-marker-alt text-blue-200" aria-hidden="true"></i></span>
+                                <span><strong class="font-semibold">Douala</strong> — commercial gateway &amp; coastal hub</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-white/95">
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 text-sm"><i class="fas fa-map-marker-alt text-blue-200" aria-hidden="true"></i></span>
+                                <span><strong class="font-semibold">Yaoundé</strong> — capital &amp; administrative centre</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-white/95">
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 text-sm"><i class="fas fa-map-marker-alt text-blue-200" aria-hidden="true"></i></span>
+                                <span><strong class="font-semibold">Bamenda</strong> — Northwest regional connection</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-white/95">
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 text-sm"><i class="fas fa-map-marker-alt text-blue-200" aria-hidden="true"></i></span>
+                                <span><strong class="font-semibold">Limbe</strong> — coastal resort &amp; port city</span>
+                            </li>
+                            <li class="flex items-center gap-3 text-white/95">
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 text-sm"><i class="fas fa-map-marker-alt text-blue-200" aria-hidden="true"></i></span>
+                                <span><strong class="font-semibold">Knambe</strong> — Southwest highland gateway</span>
+                            </li>
+                        </ul>
+                        <a href="{% url 'routes' %}" class="mt-8 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-brand-950 hover:bg-blue-50 transition-colors">
+                            See all routes
+                            <i class="fas fa-arrow-right text-xs text-brand-700" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                    <div class="relative min-h-[240px] lg:min-h-full">
+                        <img class="garanti-brand-photo-network absolute inset-0 h-full w-full" src="{% static 'garanti-home-bus.png' %}" alt="GARANTI EXPRESS terminal and coach fleet" loading="lazy" decoding="async">
+                        <div class="absolute inset-0 bg-gradient-to-r from-brand-950/88 via-brand-950/25 to-transparent lg:from-brand-950/92 lg:via-brand-950/10 lg:to-transparent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="pb-16 lg:pb-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="rounded-3xl border border-slate-200/80 bg-white p-8 sm:p-10 lg:p-12 shadow-card">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+                    <div class="max-w-xl">
+                        <p class="text-xs font-bold uppercase about-eyebrow text-brand-600">Ready to travel?</p>
+                        <h2 class="mt-2 font-display text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Book your seat in minutes</h2>
+                        <p class="mt-3 text-slate-600 leading-relaxed">Choose your route, pick a seat, and pay securely online — or reach our team for personal assistance.</p>
+                        <div class="mt-5 flex flex-wrap gap-2 text-xs font-semibold text-slate-600">
+                            <span class="rounded-full bg-slate-100 px-3 py-1.5">Seat selection</span>
+                            <span class="rounded-full bg-slate-100 px-3 py-1.5">MoMo / Orange Money</span>
+                            <span class="rounded-full bg-slate-100 px-3 py-1.5">WhatsApp confirmation</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-3 shrink-0">
+                        <a href="{% url 'booking' %}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-900 px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-900/25 hover:bg-brand-800 transition-colors">
+                            <i class="fas fa-ticket-alt text-xs" aria-hidden="true"></i>
+                            Book now
+                        </a>
+                        <a href="{{ company_phone_tel }}" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-7 py-3.5 text-sm font-bold text-slate-800 hover:bg-white transition-colors">
+                            <i class="fas fa-phone-alt text-brand-600 text-xs" aria-hidden="true"></i>
+                            {{ company_phone_display }}
+                        </a>
+                        <a href="{% url 'contact' %}" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-7 py-3.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+                            Contact us
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

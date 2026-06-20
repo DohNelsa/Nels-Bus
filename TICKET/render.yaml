@@ -1,0 +1,15 @@
+# Render Blueprint - use this if you create the service from "New > Blueprint"
+# For an existing Web Service, set these in the Dashboard instead.
+
+services:
+  - type: web
+    name: travels
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt && python TICKET/manage.py collectstatic --noinput"
+    startCommand: "bash start.sh"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: PYTHONPATH
+        value: "/opt/render/project/src"

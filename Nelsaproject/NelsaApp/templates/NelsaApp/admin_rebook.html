@@ -1,0 +1,29 @@
+{% extends 'NelsaApp/admin.html' %}
+{% block title %}Rebook — Group #{{ old.id }}{% endblock %}
+{% block content %}
+<div class="p-6 max-w-2xl mx-auto">
+    <a href="{% url 'admin_booking_detail' old.id %}" class="text-blue-600 text-sm">&larr; Back to booking</a>
+    <h1 class="text-2xl font-bold text-gray-900 mt-4">Rebook passenger</h1>
+    <p class="text-gray-600 text-sm mt-1">Original group #{{ old.id }} — {{ old.passenger.name }} — {{ old.bookings.count }} seat(s) on {{ old.schedule.route.start_location }} → {{ old.schedule.route.end_location }}</p>
+
+    <form method="post" class="mt-6 space-y-4 bg-white shadow rounded-lg p-6 border">
+        {% csrf_token %}
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">New schedule</label>
+            <select name="schedule_id" required class="w-full rounded border-gray-300 text-sm">
+                {% for s in schedules %}
+                <option value="{{ s.id }}">{{ s.departure_time|date:"Y-m-d H:i" }} — {{ s.route }} — {{ s.bus.bus_number }}</option>
+                {% empty %}
+                <option value="">No upcoming schedules</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Seat numbers (exactly {{ seat_count }}, space- or comma-separated)</label>
+            <input type="text" name="seat_numbers" required placeholder="e.g. 3 4 5 (seat 1 is driver — not assignable)" class="w-full rounded border-gray-300 font-mono text-sm" />
+        </div>
+        <p class="text-xs text-gray-500">The current booking will be cancelled and seats released; a new pending group is created with payment waived for staff confirmation.</p>
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Create rebook</button>
+    </form>
+</div>
+{% endblock %}

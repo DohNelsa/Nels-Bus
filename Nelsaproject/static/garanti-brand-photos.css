@@ -1,0 +1,38 @@
+/**
+ * Crop/focus for garanti-home-bus.png — keeps bus front + GARANTI EXPRESS / GE crown visible.
+ */
+.garanti-brand-photo {
+    object-fit: cover;
+    object-position: 54% 36%;
+}
+
+.garanti-brand-photo-hero {
+    object-fit: cover;
+    object-position: 58% 34%;
+}
+
+.garanti-brand-photo-feature {
+    object-fit: cover;
+    object-position: 52% 32%;
+}
+
+.garanti-brand-photo-card {
+    object-fit: cover;
+    object-position: 64% 26%;
+}
+
+.garanti-brand-photo-network {
+    object-fit: cover;
+    object-position: 48% 30%;
+}
+
+.garanti-brand-photo-route {
+    object-fit: cover;
+    object-position: 62% 28%;
+}
+
+.garanti-brand-bg {
+    background-size: cover;
+    background-position: 58% 34%;
+    background-repeat: no-repeat;
+}

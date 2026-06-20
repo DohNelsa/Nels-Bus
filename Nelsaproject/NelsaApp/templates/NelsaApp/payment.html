@@ -1,0 +1,176 @@
+{% extends 'NelsaApp/base.html' %}
+{% load static %}
+{% load currency %}
+
+{% block title %}Payment - GARANTI EXPRESS{% endblock %}
+
+{% block content %}
+<div class="pt-20 pb-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="bg-blue-600 px-6 py-4">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-credit-card text-white text-3xl"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h2 class="text-xl font-bold text-white">Complete Your Payment</h2>
+                        <p class="text-blue-100">{% if flutterwave_checkout %}Pay securely with Flutterwave (MTN, Orange, card){% else %}MTN Mobile Money, Orange Money, or card — step-by-step instructions on the next page{% endif %}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-900">Booking Summary</h3>
+                    <div class="mt-4 border-t border-gray-200 pt-4">
+                        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">Booking Group ID</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ booking_group.id }}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">Seat Numbers</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ booking_group.get_seat_numbers|join:", " }}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">Bus Type</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ booking_group.schedule.bus.bus_type }}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">Number of Seats</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ booking_group.get_total_seats }}</dd>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <dt class="text-sm font-medium text-gray-500">Route</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ booking_group.schedule.route.start_location }} → {{ booking_group.schedule.route.end_location }}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">Departure</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ booking_group.schedule.departure_time|date:"F d, Y, g:i A" }}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">Total Amount</dt>
+                                <dd class="mt-1 text-lg font-bold text-blue-600">{{ booking_group.total_amount|fcfa }} FCFA</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+
+                <form method="post" action="{% url 'start_payment' booking_group.id %}">
+                    {% csrf_token %}
+                    {% if checkout_token %}
+                    <input type="hidden" name="checkout" value="{{ checkout_token }}">
+                    {% endif %}
+                <div class="mb-4 rounded-lg border {% if flutterwave_checkout %}border-indigo-100 bg-indigo-50 text-indigo-900{% else %}border-emerald-100 bg-emerald-50 text-emerald-900{% endif %} px-4 py-3 text-sm">
+                    <i class="fas {% if flutterwave_checkout %}fa-lock text-indigo-600{% else %}fa-mobile-alt text-emerald-600{% endif %} mr-2" aria-hidden="true"></i>
+                    {% if flutterwave_checkout %}
+                    You will be redirected to <strong>Flutterwave</strong> to complete payment. On local dev without API keys, a <strong>simulated checkout</strong> is used for testing.
+                    {% else %}
+                    After you choose a method below, we show our <strong>merchant number</strong>, your <strong>payment reference</strong>, and USSD/card steps — then you submit your transaction ID for staff verification.
+                    {% endif %}
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-900">Select Payment Method</h3>
+                    <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                        <!-- MTN Mobile Money -->
+                        <div class="relative border border-gray-300 rounded-lg p-4 flex flex-col cursor-pointer hover:border-blue-500 transition-colors duration-200 payment-method" data-method="MOMO">
+                            <div class="flex items-center h-12">
+                                <input id="momo" name="payment_method" value="MOMO" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+                                <label for="momo" class="ml-3 block text-sm font-medium text-gray-700">
+                                    <span class="absolute inset-0" aria-hidden="true"></span>
+                                    MTN Mobile Money
+                                </label>
+                            </div>
+                            <div class="mt-2 flex-shrink-0">
+                                <img class="h-8 w-auto" src="https://upload.wikimedia.org/wikipedia/commons/9/93/New_MTN_logo.svg" alt="MTN Mobile Money">
+                            </div>
+                        </div>
+                        
+                        <!-- Orange Money -->
+                        <div class="relative border border-gray-300 rounded-lg p-4 flex flex-col cursor-pointer hover:border-blue-500 transition-colors duration-200 payment-method" data-method="ORANGE">
+                            <div class="flex items-center h-12">
+                                <input id="orange" name="payment_method" value="ORANGE" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+                                <label for="orange" class="ml-3 block text-sm font-medium text-gray-700">
+                                    <span class="absolute inset-0" aria-hidden="true"></span>
+                                    Orange Money
+                                </label>
+                            </div>
+                            <div class="mt-2 flex-shrink-0">
+                                <img class="h-8 w-auto" src="https://upload.wikimedia.org/wikipedia/commons/c/c8/Orange_logo.svg" alt="Orange Money">
+                            </div>
+                        </div>
+                        
+                        <!-- Credit/Debit Card -->
+                        <div class="relative border border-gray-300 rounded-lg p-4 flex flex-col cursor-pointer hover:border-blue-500 transition-colors duration-200 payment-method" data-method="CARD">
+                            <div class="flex items-center h-12">
+                                <input id="card" name="payment_method" value="CARD" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+                                <label for="card" class="ml-3 block text-sm font-medium text-gray-700">
+                                    <span class="absolute inset-0" aria-hidden="true"></span>
+                                    Credit/Debit Card
+                                </label>
+                            </div>
+                            <div class="mt-2 flex-shrink-0 flex space-x-2">
+                                <img class="h-8 w-auto" src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa">
+                                <img class="h-8 w-auto" src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    {% if flutterwave_checkout %}
+                    <p class="mb-3 text-xs text-gray-500 flex items-center gap-2">
+                        <i class="fas fa-lock text-green-600" aria-hidden="true"></i>
+                        Secured by Flutterwave · Test mode available for development
+                    </p>
+                    {% endif %}
+                    <button type="submit" id="proceedToPayment" class="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">
+                        {% if flutterwave_checkout %}Continue to Flutterwave{% else %}Continue to payment instructions{% endif %}
+                    </button>
+                </div>
+            </div>
+                </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const paymentMethods = document.querySelectorAll('.payment-method');
+        const proceedButton = document.getElementById('proceedToPayment');
+        let selectedMethod = null;
+        
+        // Handle payment method selection
+        paymentMethods.forEach(method => {
+            method.addEventListener('click', function() {
+                // Remove selected class from all methods
+                paymentMethods.forEach(m => {
+                    m.classList.remove('border-blue-500');
+                    m.classList.add('border-gray-300');
+                });
+                
+                // Add selected class to clicked method
+                this.classList.remove('border-gray-300');
+                this.classList.add('border-blue-500');
+                
+                // Check the radio button
+                const radio = this.querySelector('input[type="radio"]');
+                radio.checked = true;
+                
+                // Store selected method
+                selectedMethod = this.dataset.method;
+            });
+        });
+        
+        // Keep submit robust: JS only validates, server does final redirect.
+        proceedButton.addEventListener('click', function(event) {
+            if (!selectedMethod) {
+                event.preventDefault();
+                alert('Please select a payment method');
+            }
+        });
+    });
+</script>
+{% endblock %} 

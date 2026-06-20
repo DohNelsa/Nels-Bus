@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ bus.name }} - Seat Map</h1>
+<div class="bus-seat-map">
+    <div class="bus-driver">🚌 Driver</div>
+    
+    <table class="seat-table">
+        {% for row, seats in seat_map.items %}
+        <tr>
+            <th>{{ row }}</th>
+            {% for seat in seats %}
+            <td>
+                {% if seat.is_booked %}
+                <div class="seat booked" title="Booked">
+                    {{ seat.column }}
+                </div>
+                {% else %}
+                <a href="{% url 'booking:book_seat' seat.id %}" class="seat available" title="Available">
+                    {{ seat.column }}
+                </a>
+                {% endif %}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <div class="seat-legend">
+        <span class="seat available">Available</span>
+        <span class="seat booked">Booked</span>
+    </div>
+</div>
+{% endblock %}

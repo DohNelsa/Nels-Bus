@@ -1,0 +1,260 @@
+{% extends 'NelsaApp/admin.html' %}
+{% load static %}
+
+{% block title %}User Details - {{ user_detail.username }} - NelsaNdo{% endblock %}
+
+{% block content %}
+<div class="admin-user-detail">
+    <div class="admin-header">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h1>User Details</h1>
+                <p>Detailed information about {{ user_detail.username }}</p>
+            </div>
+            <div class="flex space-x-2">
+                <a href="{% url 'admin_users' %}" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Users
+                </a>
+                <a href="{% url 'admin_dashboard' %}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Statistics -->
+    <div class="admin-stats mb-8">
+        <div class="stat-card">
+            <i class="fas fa-ticket-alt"></i>
+            <h3>Total Bookings</h3>
+            <p class="stat-number">{{ total_bookings }}</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-check-circle"></i>
+            <h3>Confirmed Bookings</h3>
+            <p class="stat-number">{{ confirmed_bookings }}</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-times-circle"></i>
+            <h3>Cancelled Bookings</h3>
+            <p class="stat-number">{{ cancelled_bookings }}</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-calendar-alt"></i>
+            <h3>Member Since</h3>
+            <p class="stat-number">{{ user_detail.date_joined|date:"M Y" }}</p>
+        </div>
+    </div>
+
+    <!-- User Information -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Basic Information -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-12 w-12">
+                            <div class="h-12 w-12 rounded-full bg-gray-300 flex items-center justify-center">
+                                <span class="text-lg font-medium text-gray-700">{{ user_detail.username|first|upper }}</span>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-lg font-medium text-gray-900">{{ user_detail.get_full_name|default:user_detail.username }}</div>
+                            <div class="text-sm text-gray-500">@{{ user_detail.username }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-4">
+                        <dl class="space-y-3">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Email</dt>
+                                <dd class="text-sm text-gray-900">{{ user_detail.email }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Date Joined</dt>
+                                <dd class="text-sm text-gray-900">{{ user_detail.date_joined|date:"F d, Y, g:i A" }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Last Login</dt>
+                                <dd class="text-sm text-gray-900">
+                                    {% if user_detail.last_login %}
+                                        {{ user_detail.last_login|date:"F d, Y, g:i A" }}
+                                    {% else %}
+                                        Never
+                                    {% endif %}
+                                </dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Status</dt>
+                                <dd>
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if user_detail.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ user_detail.is_active|yesno:"Active,Inactive" }}
+                                    </span>
+                                </dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Role</dt>
+                                <dd>
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if user_detail.is_staff %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ user_detail.is_staff|yesno:"Staff,User" }}
+                                    </span>
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Actions -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Account Actions</h3>
+                <div class="space-y-3">
+                    <form method="POST" action="{% url 'admin_users' %}" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id" value="{{ user_detail.id }}">
+                        {% if user_detail.is_active %}
+                        <button type="submit" name="action" value="deactivate" 
+                                class="w-full bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                onclick="return confirm('Are you sure you want to deactivate this user?')">
+                            <i class="fas fa-user-times mr-2"></i>Deactivate User
+                        </button>
+                        {% else %}
+                        <button type="submit" name="action" value="activate" 
+                                class="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <i class="fas fa-user-check mr-2"></i>Activate User
+                        </button>
+                        {% endif %}
+                    </form>
+                    
+                    <form method="POST" action="{% url 'admin_users' %}" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id" value="{{ user_detail.id }}">
+                        {% if user_detail.is_staff %}
+                        <button type="submit" name="action" value="remove_staff" 
+                                class="w-full bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                onclick="return confirm('Are you sure you want to remove staff privileges?')">
+                            <i class="fas fa-user-minus mr-2"></i>Remove Staff Privileges
+                        </button>
+                        {% else %}
+                        <button type="submit" name="action" value="make_staff" 
+                                class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                onclick="return confirm('Are you sure you want to make this user staff?')">
+                            <i class="fas fa-user-shield mr-2"></i>Make Staff
+                        </button>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Bookings -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div class="p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Bookings</h3>
+            {% if bookings %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Route</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for booking in bookings %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ booking.id }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ booking.schedule.route.start_location }} → {{ booking.schedule.route.end_location }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ booking.booking_date|date:"M d, Y" }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    {% if booking.status == 'Confirmed' %}bg-green-100 text-green-800
+                                    {% elif booking.status == 'Pending' %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ booking.status }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="{% url 'admin_booking_detail' booking.id %}" class="text-blue-600 hover:text-blue-900">View Details</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-8">
+                <i class="fas fa-ticket-alt text-gray-400 text-4xl mb-4"></i>
+                <p class="text-gray-500">No bookings found for this user.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .admin-user-detail {
+        padding: 2rem;
+    }
+
+    .admin-header {
+        margin-bottom: 2rem;
+    }
+
+    .admin-header h1 {
+        color: #2c3e50;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .admin-header p {
+        color: #7f8c8d;
+    }
+
+    .admin-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-card i {
+        font-size: 2rem;
+        color: #3498db;
+        margin-bottom: 1rem;
+    }
+
+    .stat-card h3 {
+        color: #2c3e50;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-number {
+        color: #3498db;
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+</style>
+{% endblock %} 

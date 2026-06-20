@@ -1,0 +1,38 @@
+<!DOCTYPE html><html>
+<head>
+    <title>Seat Booking</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .seat { width: 40px; height: 40px; margin: 5px; display: inline-block; text-align: center; line-height: 40px; cursor: pointer; }
+        .available { background-color: green; color: white; }
+        .booked { background-color: red; color: white; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <h2>Book Your Seat</h2>
+    <div>
+        {% for seat in seats %}
+            <div class="seat {% if seat.is_booked %}booked{% else %}available{% endif %}"
+                 data-row="{{ seat.row }}" data-column="{{ seat.column }}">
+                {{ seat.row }}-{{ seat.column }}
+            </div>
+            {% if forloop.counter|divisibleby:10 %}<br>{% endif %}
+        {% endfor %}
+    </div>
+    <script>
+        FCFA(document).ready(function() {
+            FCFA('.seat.available').click(function() {
+                var row = FCFA(this).data('row');
+                var column = FCFA(this).data('column');
+                var seatDiv = FCFA(this);
+                FCFA.post("/book/", { row: row, column: column, csrfmiddlewaretoken: '{{ csrf_token }}' }, function(response) {
+                    if (response.success) {
+                        seatDiv.removeClass('available').addClass('booked').text(row + '-' + column);
+                    }
+                    alert(response.message);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,334 @@
+{% extends 'NelsaApp/base.html' %}
+{% load static %}
+
+{% block title %}Add Route - Admin{% endblock %}
+
+{% block content %}
+<div class="admin-route-add">
+    <div class="page-header">
+        <h1>Add New Route</h1>
+        <p>Create a new bus route with pricing information</p>
+        <a href="{% url 'admin_routes' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Routes
+        </a>
+    </div>
+
+    <div class="form-container">
+        <form method="POST" class="route-form">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <h3>Route Information</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="start_location">Start Location *</label>
+                        <input type="text" id="start_location" name="start_location" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="end_location">End Location *</label>
+                        <input type="text" id="end_location" name="end_location" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="distance">Distance (km) *</label>
+                        <input type="number" id="distance" name="distance" class="form-control" step="0.1" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="duration">Duration (hours) *</label>
+                        <input type="number" id="duration" name="duration" class="form-control" step="0.5" min="0" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Pricing Information</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="price">Base Price (FCFA) *</label>
+                        <input type="number" id="price" name="price" class="form-control" step="100" min="0" required>
+                        <small class="form-text">This is the base price for this route. Individual schedules can override this price.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Route Options</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="create_reverse" name="create_reverse" class="form-checkbox">
+                            <label for="create_reverse" class="checkbox-label">
+                                <i class="fas fa-exchange-alt"></i>
+                                Create bidirectional route
+                            </label>
+                            <small class="form-text">Automatically create a reverse route from {{ end_location }} to {{ start_location }} with the same distance, duration, and price.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Create Route
+                </button>
+                <a href="{% url 'admin_routes' %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Help Section -->
+    <div class="help-section">
+        <h3>Tips for Adding Routes</h3>
+        <div class="help-grid">
+            <div class="help-card">
+                <i class="fas fa-map-marker-alt"></i>
+                <h4>Location Names</h4>
+                <p>Use clear, recognizable city or town names that passengers will understand.</p>
+            </div>
+            <div class="help-card">
+                <i class="fas fa-road"></i>
+                <h4>Distance</h4>
+                <p>Enter the actual road distance in kilometers, not straight-line distance.</p>
+            </div>
+            <div class="help-card">
+                <i class="fas fa-clock"></i>
+                <h4>Duration</h4>
+                <p>Estimate travel time including stops and traffic conditions.</p>
+            </div>
+            <div class="help-card">
+                <i class="fas fa-money-bill-wave"></i>
+                <h4>Pricing</h4>
+                <p>Set competitive prices based on distance, demand, and market rates.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .admin-route-add {
+        padding: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .page-header h1 {
+        color: #2c3e50;
+        margin: 0;
+    }
+
+    .page-header p {
+        color: #7f8c8d;
+        margin: 0;
+    }
+
+    .form-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section h3 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #3498db;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+
+    .form-text {
+        font-size: 0.875rem;
+        color: #7f8c8d;
+        margin-top: 0.25rem;
+    }
+
+    .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+        cursor: pointer;
+    }
+
+    .form-checkbox {
+        width: 1.2rem;
+        height: 1.2rem;
+        margin-right: 0.5rem;
+        cursor: pointer;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: #3498db;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #2980b9;
+    }
+
+    .btn-secondary {
+        background: #95a5a6;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #7f8c8d;
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: #7f8c8d;
+        border: 1px solid #ddd;
+    }
+
+    .btn-outline:hover {
+        background: #f8f9fa;
+    }
+
+    .help-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .help-section h3 {
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .help-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .help-card {
+        text-align: center;
+        padding: 1.5rem;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        transition: transform 0.3s ease;
+    }
+
+    .help-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .help-card i {
+        font-size: 2rem;
+        color: #3498db;
+        margin-bottom: 1rem;
+    }
+
+    .help-card h4 {
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .help-card p {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    @media (max-width: 768px) {
+        .admin-route-add {
+            padding: 1rem;
+        }
+        
+        .page-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .help-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %} 

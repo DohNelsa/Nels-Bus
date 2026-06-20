@@ -1,0 +1,52 @@
+{% extends 'NelsaApp/admin.html' %}
+{% load static %}
+
+{% block title %}Webhook {{ event.event_id }} - NelsaNdo{% endblock %}
+
+{% block content %}
+<div class="p-6 max-w-5xl mx-auto">
+    <div class="mb-6">
+        <a href="{% url 'admin_payment_webhooks' %}" class="text-blue-600 hover:underline text-sm">&larr; Back to webhooks</a>
+        <h1 class="text-2xl font-bold text-gray-900 mt-2">Webhook event</h1>
+        <p class="text-gray-600 font-mono text-sm break-all">{{ event.event_id }}</p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm border p-6 space-y-4">
+        <dl class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div><dt class="text-gray-500">Provider</dt><dd class="font-medium">{{ event.provider }}</dd></div>
+            <div><dt class="text-gray-500">Event kind</dt><dd class="font-mono">{{ event.event_kind|default:"payment" }}</dd></div>
+            <div><dt class="text-gray-500">Status</dt><dd class="font-medium">{{ event.status }}</dd></div>
+            <div><dt class="text-gray-500">Processed</dt><dd>{{ event.processed|yesno:"Yes,No" }}</dd></div>
+            <div><dt class="text-gray-500">Received</dt><dd>{{ event.received_at|date:"Y-m-d H:i:s" }}</dd></div>
+            <div><dt class="text-gray-500">Processed at</dt><dd>{{ event.processed_at|date:"Y-m-d H:i:s"|default:"—" }}</dd></div>
+            <div><dt class="text-gray-500">Transaction ID</dt><dd class="font-mono">{{ event.transaction_id|default:"—" }}</dd></div>
+            <div class="md:col-span-2"><dt class="text-gray-500">Booking group</dt>
+                <dd>
+                    {% if event.booking_group_id %}
+                        <a href="{% url 'admin_booking_detail' event.booking_group_id %}" class="text-blue-600 hover:underline">#{{ event.booking_group_id }}</a>
+                    {% else %}
+                        —
+                    {% endif %}
+                </dd>
+            </div>
+            {% if event.error_message %}
+            <div class="md:col-span-2"><dt class="text-gray-500">Error</dt><dd class="text-red-600 whitespace-pre-wrap">{{ event.error_message }}</dd></div>
+            {% endif %}
+        </dl>
+        {% if not event.processed and not event.dead_lettered %}
+        <form method="post" action="{% url 'admin_retry_payment_webhook' event.pk %}" onsubmit="return confirm('Retry processing this webhook event now?')">
+            {% csrf_token %}
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">Retry Processing</button>
+            <span class="text-xs text-gray-500 ml-2">Retries: {{ event.retry_count|default:0 }}</span>
+        </form>
+        {% elif event.dead_lettered %}
+        <p class="text-sm text-red-700">This event is dead-lettered after max retries. Inspect payload and process manually if needed.</p>
+        {% endif %}
+
+        <div>
+            <h2 class="font-semibold text-gray-800 mb-2">Raw payload</h2>
+            <pre class="bg-gray-900 text-green-100 p-4 rounded-md overflow-x-auto text-xs">{{ payload_pretty }}</pre>
+        </div>
+    </div>
+</div>
+{% endblock %}

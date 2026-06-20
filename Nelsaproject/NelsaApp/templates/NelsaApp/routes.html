@@ -1,0 +1,191 @@
+{% extends 'NelsaApp/base.html' %}
+{% load currency %}
+{% load static %}
+
+{% block title %}Our Routes — GARANTI EXPRESS{% endblock %}
+{% block meta_description %}Explore GARANTI EXPRESS routes connecting Douala, Yaoundé, Bamenda, Limbe, and Knambe across Cameroon. View schedules and book online.{% endblock %}
+
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: {
+                    sans: ['Inter', 'system-ui', 'sans-serif'],
+                    display: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+                },
+                colors: {
+                    brand: {
+                        600: '#2563eb',
+                        700: '#1d4ed8',
+                        800: '#1e40af',
+                        900: '#1e3a8a',
+                        950: '#0f172a',
+                    },
+                },
+            },
+        },
+    };
+</script>
+<style>
+    .routes-hero-bg { background: #0f172a; }
+    .routes-hero-accent {
+        background: linear-gradient(90deg, #f59e0b, #2563eb);
+        height: 3px;
+    }
+    .routes-hero-panel {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 20px 40px -12px rgba(15, 23, 42, 0.18);
+    }
+    .routes-hero-copy {
+        -webkit-font-smoothing: auto;
+        -moz-osx-font-smoothing: auto;
+        text-rendering: optimizeLegibility;
+    }
+    .routes-eyebrow { letter-spacing: 0.08em; }
+    .routes-city-pill {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #0f172a;
+        font-weight: 600;
+    }
+    .routes-card-img {
+        object-fit: cover;
+        object-position: 62% 28%;
+        transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .routes-card:hover .routes-card-img {
+        transform: scale(1.05);
+    }
+</style>
+<link rel="stylesheet" href="{% static 'garanti-brand-photos.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="bg-slate-50 font-sans text-slate-700 -mt-16 subpixel-antialiased pb-12">
+
+    <!-- Hero -->
+    <section class="routes-hero-bg relative overflow-hidden border-b border-slate-800">
+        <div class="routes-hero-accent absolute top-0 inset-x-0" aria-hidden="true"></div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-14 sm:pb-16 lg:pb-20">
+            <nav class="routes-hero-copy mb-5 text-sm" aria-label="Breadcrumb">
+                <ol class="flex flex-wrap items-center gap-2">
+                    <li><a href="{% url 'index' %}" class="font-medium text-slate-300 hover:text-white transition-colors">Home</a></li>
+                    <li aria-hidden="true" class="text-slate-500 font-medium">/</li>
+                    <li class="font-semibold text-white" aria-current="page">Routes</li>
+                </ol>
+            </nav>
+
+            <div class="routes-hero-panel routes-hero-copy rounded-2xl p-6 sm:p-8 lg:p-10">
+                <div class="grid lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+                    <div class="lg:col-span-7">
+                        <p class="inline-flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-[11px] font-bold uppercase routes-eyebrow text-blue-800">
+                            <i class="fas fa-route text-[10px]" aria-hidden="true"></i>
+                            5 cities · Daily departures
+                        </p>
+                        <h1 class="mt-4 font-display text-3xl sm:text-4xl lg:text-[2.75rem] font-bold tracking-normal text-slate-900 leading-tight">
+                            Our Routes
+                        </h1>
+                        <p class="mt-3 max-w-xl text-base sm:text-[17px] text-slate-600 leading-relaxed">
+                            Explore our extensive network of routes connecting major cities across Cameroon — with regular schedules and online booking.
+                        </p>
+                        <div class="mt-6">
+                            <a href="{% url 'booking' %}" class="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-5 py-3 text-sm font-bold text-white hover:bg-brand-800 transition-colors">
+                                Book a trip
+                                <i class="fas fa-arrow-right text-xs" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-5">
+                        <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-3">Cities we serve</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="routes-city-pill inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm"><i class="fas fa-map-marker-alt text-brand-700 text-xs" aria-hidden="true"></i>Douala</span>
+                            <span class="routes-city-pill inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm"><i class="fas fa-map-marker-alt text-brand-700 text-xs" aria-hidden="true"></i>Yaoundé</span>
+                            <span class="routes-city-pill inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm"><i class="fas fa-map-marker-alt text-brand-700 text-xs" aria-hidden="true"></i>Bamenda</span>
+                            <span class="routes-city-pill inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm"><i class="fas fa-map-marker-alt text-brand-700 text-xs" aria-hidden="true"></i>Limbe</span>
+                            <span class="routes-city-pill inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm"><i class="fas fa-map-marker-alt text-brand-700 text-xs" aria-hidden="true"></i>Knambe</span>
+                        </div>
+                        {% if routes %}
+                        <p class="mt-5 text-sm text-slate-500">
+                            <span class="font-semibold text-slate-800">{{ routes|length }} route{{ routes|length|pluralize }}</span> available to book online today.
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {% if page_error %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900" role="alert">
+            <p class="text-sm font-medium">{{ page_error }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Routes Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900">Popular Routes</h2>
+            <p class="mt-4 text-lg text-gray-600">Discover our most popular routes with regular daily departures</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for route in routes %}
+            <article class="routes-card group flex flex-col overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                <div class="relative h-48 overflow-hidden bg-slate-200">
+                    <img class="routes-card-img garanti-brand-photo-route h-full w-full" src="{% static 'garanti-home-bus.png' %}" alt="GARANTI EXPRESS coach — {{ route.start_location }} to {{ route.end_location }}" loading="lazy" width="900" height="480" decoding="async">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/85 via-slate-900/30 to-transparent"></div>
+                    <div class="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-white/85">Route</p>
+                            <h3 class="font-display text-lg font-bold text-white truncate">{{ route.start_location }} → {{ route.end_location }}</h3>
+                        </div>
+                        <span class="shrink-0 rounded-lg bg-white px-3 py-1.5 text-sm font-extrabold text-brand-700 shadow-sm">
+                            {% if route.price %}{{ route.price|fcfa }} FCFA{% else %}—{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="flex flex-1 flex-col p-6">
+                    <p class="flex items-center gap-2 text-sm text-slate-500">
+                        <i class="far fa-clock text-brand-600" aria-hidden="true"></i>
+                        Approx. {{ route.duration|default:"—" }} hour{{ route.duration|pluralize }}
+                    </p>
+                    <p class="mt-2 flex items-center gap-2 text-sm text-slate-500">
+                        <i class="fas fa-road text-brand-600 text-xs" aria-hidden="true"></i>
+                        {{ route.distance }} km
+                    </p>
+                    <a href="{% url 'booking' %}" class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-700 py-3 text-sm font-bold text-white hover:bg-brand-800 transition-colors">
+                        Book this route
+                    </a>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="bg-blue-600 rounded-lg shadow-xl overflow-hidden">
+            <div class="px-6 py-12 sm:px-12 sm:py-16 lg:flex lg:items-center lg:justify-between">
+                <div>
+                    <h2 class="text-3xl font-bold text-white">Ready to Start Your Journey?</h2>
+                    <p class="mt-4 text-lg text-blue-100">Book your ticket now and enjoy a comfortable ride to your destination.</p>
+                </div>
+                <div class="mt-8 lg:mt-0">
+                    <a href="{% url 'booking' %}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Book Your Journey
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

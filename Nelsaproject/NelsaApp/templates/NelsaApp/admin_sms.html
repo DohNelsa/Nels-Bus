@@ -1,0 +1,192 @@
+{% extends 'NelsaApp/base.html' %}
+
+{% block title %}SMS Management - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-sms"></i> SMS Management
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- SMS Statistics -->
+                    <div class="row mb-4">
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-info">
+                                <div class="inner">
+                                    <h3>{{ total_sms }}</h3>
+                                    <p>Total SMS</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-sms"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-warning">
+                                <div class="inner">
+                                    <h3>{{ pending_sms }}</h3>
+                                    <p>Pending SMS</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-success">
+                                <div class="inner">
+                                    <h3>{{ sent_sms }}</h3>
+                                    <p>Sent SMS</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-6">
+                            <div class="small-box bg-danger">
+                                <div class="inner">
+                                    <h3>{{ failed_sms }}</h3>
+                                    <p>Failed SMS</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <form method="GET" class="form-inline">
+                                <div class="form-group mr-2">
+                                    <label for="status" class="mr-2">Status:</label>
+                                    <select name="status" id="status" class="form-control">
+                                        <option value="">All Status</option>
+                                        <option value="PENDING" {% if status_filter == 'PENDING' %}selected{% endif %}>Pending</option>
+                                        <option value="SENT" {% if status_filter == 'SENT' %}selected{% endif %}>Sent</option>
+                                        <option value="FAILED" {% if status_filter == 'FAILED' %}selected{% endif %}>Failed</option>
+                                    </select>
+                                </div>
+                                <div class="form-group mr-2">
+                                    <label for="sms_type" class="mr-2">Type:</label>
+                                    <select name="sms_type" id="sms_type" class="form-control">
+                                        <option value="">All Types</option>
+                                        <option value="CONFIRMATION" {% if sms_type_filter == 'CONFIRMATION' %}selected{% endif %}>Confirmation</option>
+                                        <option value="CANCELLATION" {% if sms_type_filter == 'CANCELLATION' %}selected{% endif %}>Cancellation</option>
+                                    </select>
+                                </div>
+                                <div class="form-group mr-2">
+                                    <label for="date" class="mr-2">Date:</label>
+                                    <input type="date" name="date" id="date" class="form-control" value="{{ date_filter }}">
+                                </div>
+                                <button type="submit" class="btn btn-primary mr-2">Filter</button>
+                                <a href="{% url 'admin_sms' %}" class="btn btn-secondary">Clear</a>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- SMS Messages Table -->
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Passenger</th>
+                                    <th>Phone</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Sent By</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sms in sms_messages %}
+                                <tr>
+                                    <td>{{ sms.id }}</td>
+                                    <td>{{ sms.booking_group.passenger.name }}</td>
+                                    <td>{{ sms.phone_number|slice:":4" }}****{{ sms.phone_number|slice:"-2:" }}</td>
+                                    <td>
+                                        <span class="badge badge-{% if sms.sms_type == 'CONFIRMATION' %}success{% else %}warning{% endif %}">
+                                            {{ sms.sms_type }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-{% if sms.status == 'PENDING' %}warning{% elif sms.status == 'SENT' %}success{% else %}danger{% endif %}">
+                                            {{ sms.status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ sms.created_at|date:"M d, Y H:i" }}</td>
+                                    <td>
+                                        {% if sms.sent_by %}
+                                            {{ sms.sent_by.username }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'admin_sms_detail' sms.id %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                        {% if sms.status == 'PENDING' %}
+                                            <form method="POST" action="{% url 'admin_send_sms' sms.id %}" style="display: inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Send this SMS?')">
+                                                    <i class="fas fa-paper-plane"></i> Send
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center">No SMS messages found.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if sms_messages.has_other_pages %}
+                    <nav aria-label="SMS pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if sms_messages.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ sms_messages.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sms_type_filter %}&sms_type={{ sms_type_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            {% for num in sms_messages.paginator.page_range %}
+                                {% if sms_messages.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > sms_messages.number|add:'-3' and num < sms_messages.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sms_type_filter %}&sms_type={{ sms_type_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if sms_messages.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ sms_messages.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sms_type_filter %}&sms_type={{ sms_type_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

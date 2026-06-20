@@ -1,0 +1,138 @@
+{% extends 'NelsaApp/base.html' %}
+{% load currency %}
+
+{% block title %}SMS Details - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-sms"></i> SMS Details #{{ sms.id }}
+                    </h3>
+                    <div class="card-tools">
+                        <a href="{% url 'admin_sms' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to SMS List
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>SMS Information</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>SMS ID:</strong></td>
+                                    <td>{{ sms.id }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Status:</strong></td>
+                                    <td>
+                                        <span class="badge badge-{% if sms.status == 'PENDING' %}warning{% elif sms.status == 'SENT' %}success{% else %}danger{% endif %}">
+                                            {{ sms.status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Type:</strong></td>
+                                    <td>
+                                        <span class="badge badge-{% if sms.sms_type == 'CONFIRMATION' %}success{% else %}warning{% endif %}">
+                                            {{ sms.sms_type }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Phone Number:</strong></td>
+                                    <td>{{ sms.phone_number }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Created:</strong></td>
+                                    <td>{{ sms.created_at|date:"F d, Y H:i:s" }}</td>
+                                </tr>
+                                {% if sms.sent_at %}
+                                <tr>
+                                    <td><strong>Sent At:</strong></td>
+                                    <td>{{ sms.sent_at|date:"F d, Y H:i:s" }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if sms.sent_by %}
+                                <tr>
+                                    <td><strong>Sent By:</strong></td>
+                                    <td>{{ sms.sent_by.username }}</td>
+                                </tr>
+                                {% endif %}
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Booking Information</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Booking Group:</strong></td>
+                                    <td>#{{ sms.booking_group.id }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Passenger:</strong></td>
+                                    <td>{{ sms.booking_group.passenger.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Email:</strong></td>
+                                    <td>{{ sms.booking_group.passenger.email }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Route:</strong></td>
+                                    <td>{{ sms.booking_group.schedule.route.start_location }} → {{ sms.booking_group.schedule.route.end_location }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Departure:</strong></td>
+                                    <td>{{ sms.booking_group.schedule.departure_time|date:"F d, Y H:i" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Bus:</strong></td>
+                                    <td>{{ sms.booking_group.schedule.bus.bus_number }} ({{ sms.booking_group.schedule.bus.bus_type }})</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Seats:</strong></td>
+                                    <td>{{ sms.booking_group.get_seat_numbers|join:", " }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Amount:</strong></td>
+                                    <td>{{ sms.booking_group.total_amount|fcfa }} FCFA</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5>SMS Message</h5>
+                            <div class="alert alert-info">
+                                <pre style="white-space: pre-wrap; margin: 0;">{{ sms.message }}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5>Actions</h5>
+                            {% if sms.status == 'PENDING' %}
+                                <form method="POST" action="{% url 'admin_send_sms' sms.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success" onclick="return confirm('Send this SMS?')">
+                                        <i class="fas fa-paper-plane"></i> Send SMS
+                                    </button>
+                                </form>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> This SMS has already been sent.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

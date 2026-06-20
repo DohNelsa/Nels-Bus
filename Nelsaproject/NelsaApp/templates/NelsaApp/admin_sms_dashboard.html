@@ -1,0 +1,138 @@
+{% extends 'NelsaApp/admin.html' %}
+{% load static %}
+
+{% block title %}SMS Dashboard - NelsaNdo{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">SMS Delivery Dashboard</h1>
+        <p class="text-gray-600">Track delivery, errors, and retries for booking confirmation SMS.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow-sm p-4 border">
+            <p class="text-sm text-gray-500">Sent</p>
+            <p class="text-2xl font-bold text-green-600">{{ sent_count }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm p-4 border">
+            <p class="text-sm text-gray-500">Failed</p>
+            <p class="text-2xl font-bold text-red-600">{{ failed_count }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm p-4 border">
+            <p class="text-sm text-gray-500">Not Sent</p>
+            <p class="text-2xl font-bold text-yellow-600">{{ pending_count }}</p>
+        </div>
+    </div>
+
+    <div class="mb-6">
+        <form method="post" action="{% url 'admin_sms_retry_all_failed' %}" onsubmit="return confirm('Retry all failed SMS now?')">
+            {% csrf_token %}
+            <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                <i class="fas fa-rotate-right mr-2"></i> Retry All Failed
+            </button>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
+        <div class="px-4 py-3 border-b bg-gray-50">
+            <h2 class="font-semibold text-gray-800">Failed SMS (Recent)</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Booking</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Passenger</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Error</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Retries</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for bg in failed_groups %}
+                    <tr>
+                        <td class="px-4 py-2 text-sm">#{{ bg.id }}</td>
+                        <td class="px-4 py-2 text-sm">{{ bg.passenger.name }}</td>
+                        <td class="px-4 py-2 text-sm text-red-600">{{ bg.sms_error_message|default:"Unknown error" }}</td>
+                        <td class="px-4 py-2 text-sm">{{ bg.sms_retry_count }}</td>
+                        <td class="px-4 py-2 text-sm">
+                            <form method="post" action="{% url 'admin_resend_sms_receipt' bg.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="text-blue-600 hover:text-blue-800">Retry</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td class="px-4 py-3 text-sm text-gray-500" colspan="5">No failed SMS records.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div class="px-4 py-3 border-b bg-gray-50">
+            <h2 class="font-semibold text-gray-800">Successfully Sent (Recent)</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Booking</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Passenger</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Sent At</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for bg in recent_sent %}
+                    <tr>
+                        <td class="px-4 py-2 text-sm">#{{ bg.id }}</td>
+                        <td class="px-4 py-2 text-sm">{{ bg.passenger.name }}</td>
+                        <td class="px-4 py-2 text-sm font-mono">{{ bg.sms_receipt_code }}</td>
+                        <td class="px-4 py-2 text-sm">{{ bg.sms_sent_at|date:"Y-m-d H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td class="px-4 py-3 text-sm text-gray-500" colspan="4">No sent SMS records yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div class="px-4 py-3 border-b bg-gray-50">
+            <h2 class="font-semibold text-gray-800">Recent SMS attempts (all statuses)</h2>
+            <p class="text-xs text-gray-500 mt-1">Includes retries, errors, and successful sends — for full delivery audit.</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Booking</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Retries</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Last attempt</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Error</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for bg in sms_qs %}
+                    <tr>
+                        <td class="px-4 py-2 text-sm"><a href="{% url 'admin_booking_detail' bg.id %}" class="text-blue-600 hover:underline">#{{ bg.id }}</a></td>
+                        <td class="px-4 py-2 text-sm">{{ bg.sms_status }}</td>
+                        <td class="px-4 py-2 text-sm">{{ bg.sms_retry_count }}</td>
+                        <td class="px-4 py-2 text-sm">{{ bg.sms_last_attempt_at|date:"Y-m-d H:i"|default:"—" }}</td>
+                        <td class="px-4 py-2 text-sm text-red-600 max-w-xs truncate" title="{{ bg.sms_error_message|default:'' }}">{{ bg.sms_error_message|default:"—"|truncatechars:48 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="px-4 py-3 text-sm text-gray-500">No SMS activity recorded yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

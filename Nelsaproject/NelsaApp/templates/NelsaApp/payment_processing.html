@@ -1,0 +1,366 @@
+{% extends 'NelsaApp/base.html' %}
+{% load static %}
+{% load currency %}
+
+{% block title %}Payment Processing - GARANTI EXPRESS{% endblock %}
+
+{% block content %}
+<div class="pt-20 pb-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="bg-blue-600 px-6 py-4">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-credit-card text-white text-3xl"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h2 class="text-xl font-bold text-white">Payment Instructions</h2>
+                        <p class="text-blue-100">Follow the steps below to complete your payment</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                {% if flutterwave_simulate %}
+                <div class="mb-8 rounded-lg border border-amber-200 bg-amber-50 p-5">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-flask text-amber-600 text-xl mt-0.5" aria-hidden="true"></i>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-amber-900">Flutterwave — simulated checkout</h3>
+                            <p class="mt-2 text-sm text-amber-800">
+                                No API keys configured. Use the button below to simulate a successful payment (test mode).
+                                Reference: <span class="font-mono font-semibold">{{ payment_reference }}</span>
+                            </p>
+                            <p class="mt-2 text-sm text-amber-800">
+                                Amount: <strong>{{ booking_group.total_amount|fcfa }} FCFA</strong> ·
+                                Method:
+                                {% if payment_method == 'MOMO' %}MTN Mobile Money
+                                {% elif payment_method == 'ORANGE' %}Orange Money
+                                {% else %}Card{% endif %}
+                            </p>
+                            <button type="button" id="simulateFlutterwavePay" class="mt-4 w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-md bg-amber-600 px-6 py-3 text-sm font-bold text-white hover:bg-amber-700">
+                                <i class="fas fa-check-circle" aria-hidden="true"></i>
+                                Simulate successful payment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="mb-6 rounded-lg border {% if payment_method == 'CARD' %}border-blue-200 bg-blue-50 text-blue-900{% else %}border-emerald-200 bg-emerald-50 text-emerald-900{% endif %} p-4 text-sm">
+                    <i class="fas {% if payment_method == 'CARD' %}fa-credit-card{% else %}fa-mobile-alt{% endif %} mr-2" aria-hidden="true"></i>
+                    {% if payment_method == 'CARD' %}
+                    Follow the <strong>card</strong> steps below. Payment is finalized after staff verification.
+                    {% else %}
+                    Complete payment on your phone using the <strong>merchant number</strong> and <strong>reference</strong> below — then tap <strong>I've completed the payment</strong> and paste your Mobile Money transaction ID.
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-900">Payment Summary</h3>
+                    <div class="mt-4 border-t border-gray-200 pt-4">
+                        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">Booking Group ID</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ booking_group.id }}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">Payment Method</dt>
+                                <dd class="mt-1 text-sm text-gray-900">
+                                    {% if payment_method == 'MOMO' %}
+                                        MTN Mobile Money
+                                    {% elif payment_method == 'ORANGE' %}
+                                        Orange Money
+                                    {% else %}
+                                        Credit/Debit Card
+                                    {% endif %}
+                                </dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">Pay to (MoMo)</dt>
+                                <dd class="mt-1 text-sm font-mono font-semibold text-gray-900">{{ payment_merchant_phone }}</dd>
+                            </div>
+                            {% if payment_merchant_name %}
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">Recipient name</dt>
+                                <dd class="mt-1 text-sm font-semibold text-gray-900">{{ payment_merchant_name }}</dd>
+                            </div>
+                            {% endif %}
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">Payment reference</dt>
+                                <dd class="mt-1 text-sm font-mono font-semibold text-gray-900">{{ payment_reference }}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">Seat(s)</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ booking_group.get_seat_numbers|join:", " }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+                
+                {% if not flutterwave_simulate %}
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-900">Payment Instructions</h3>
+                    {% if payment_method == 'MOMO' %}
+                    <div class="mt-4 space-y-4">
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-info-circle text-yellow-400"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-yellow-700">
+                                        Please follow these steps to complete your payment via MTN Mobile Money:
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                            <li>Dial <span class="font-mono font-bold">*126#</span> on your phone</li>
+                            <li>Select option <span class="font-bold">1</span> for "Send Money"</li>
+                            <li>Enter the recipient number: <span class="font-mono font-bold">{{ payment_merchant_phone }}</span>{% if payment_merchant_name %} <span class="text-gray-600">(confirm name shown: <strong>{{ payment_merchant_name }}</strong>)</span>{% endif %}</li>
+                            <li>Enter the amount: <span class="font-bold">{{ booking_group.total_amount|fcfa }} FCFA</span> <span class="text-red-600 font-semibold">(must match exactly)</span></li>
+                            <li>Enter your PIN to confirm</li>
+                            <li>Enter the reference: <span class="font-mono font-bold">{{ payment_reference }}</span></li>
+                            <li>Confirm the transaction</li>
+                        </ol>
+                        
+                        <div class="mt-4 p-4 bg-gray-50 rounded-md">
+                            <p class="text-sm text-gray-600">
+                                <strong>Important:</strong> Pay the <strong>exact</strong> amount above. After Mobile Money confirms, copy the <strong>transaction ID</strong> from the SMS. Click “I’ve completed the payment” below and paste that ID. Your booking stays pending until <strong>GARANTI EXPRESS staff verify</strong> your payment in the admin panel — then we send your confirmation <strong>email and SMS</strong> (including seats and details).
+                            </p>
+                        </div>
+                    </div>
+                    
+                    {% elif payment_method == 'ORANGE' %}
+                    <div class="mt-4 space-y-4">
+                        <div class="bg-orange-50 border-l-4 border-orange-400 p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-info-circle text-orange-400"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-orange-700">
+                                        Please follow these steps to complete your payment via Orange Money:
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                            <li>Dial <span class="font-mono font-bold">*151#</span> on your phone</li>
+                            <li>Select option <span class="font-bold">1</span> for "Transfer Money"</li>
+                            <li>Enter the recipient number: <span class="font-mono font-bold">{{ payment_merchant_phone }}</span>{% if payment_merchant_name %} <span class="text-gray-600">(confirm name shown: <strong>{{ payment_merchant_name }}</strong>)</span>{% endif %}</li>
+                            <li>Enter the amount: <span class="font-bold">{{ booking_group.total_amount|fcfa }} FCFA</span> <span class="text-red-600 font-semibold">(must match exactly)</span></li>
+                            <li>Enter your PIN to confirm</li>
+                            <li>Enter the reference: <span class="font-mono font-bold">{{ payment_reference }}</span></li>
+                            <li>Confirm the transaction</li>
+                        </ol>
+                        
+                        <div class="mt-4 p-4 bg-gray-50 rounded-md">
+                            <p class="text-sm text-gray-600">
+                                <strong>Important:</strong> Same as MTN: exact amount, then transaction ID from your SMS. Staff verify manually before your booking is confirmed and SMS is sent.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    {% else %}
+                    <div class="mt-4 space-y-4">
+                        <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-info-circle text-blue-400"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-blue-700">
+                                        Please follow these steps to complete your payment via Credit/Debit Card:
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 border border-gray-200 rounded-lg">
+                            <form id="card-payment-form" class="space-y-4">
+                                <div>
+                                    <label for="card-number" class="block text-sm font-medium text-gray-700">Card Number</label>
+                                    <input type="text" id="card-number" name="card-number" placeholder="1234 5678 9012 3456" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="expiry-date" class="block text-sm font-medium text-gray-700">Expiry Date</label>
+                                        <input type="text" id="expiry-date" name="expiry-date" placeholder="MM/YY" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label for="cvv" class="block text-sm font-medium text-gray-700">CVV</label>
+                                        <input type="text" id="cvv" name="cvv" placeholder="123" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label for="card-name" class="block text-sm font-medium text-gray-700">Name on Card</label>
+                                    <input type="text" id="card-name" name="card-name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                </div>
+                                
+                                <div class="pt-4">
+                                    <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                        Pay {{ booking_group.total_amount|fcfa }} FCFA
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="mt-4 p-4 bg-gray-50 rounded-md">
+                            <p class="text-sm text-gray-600">
+                                <strong>Secure Payment:</strong> Your card information is encrypted and secure. We do not store your full card details.
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <div class="mt-6 flex justify-between">
+                    <a href="{% url 'payment' booking_group.id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back to Payment Methods
+                    </a>
+                    
+                    {% if not flutterwave_simulate %}
+                    <button id="verifyPayment" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-check mr-2"></i>
+                        I've Completed the Payment
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const simulateBtn = document.getElementById('simulateFlutterwavePay');
+        if (simulateBtn) {
+            simulateBtn.addEventListener('click', function() {
+                simulateBtn.disabled = true;
+                fetch("{% url 'flutterwave_simulate_pay' booking_group.id %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        payment_method: '{{ payment_method }}',
+                        tx_ref: '{{ payment_reference }}'
+                    })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    } else {
+                        alert(data.message || 'Simulation failed.');
+                        simulateBtn.disabled = false;
+                    }
+                })
+                .catch(() => {
+                    alert('Simulation request failed.');
+                    simulateBtn.disabled = false;
+                });
+            });
+            return;
+        }
+
+        const verifyButton = document.getElementById('verifyPayment');
+        if (!verifyButton) return;
+
+        verifyButton.addEventListener('click', function() {
+            // Show verification form
+            const verificationForm = document.createElement('div');
+            verificationForm.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50';
+            verificationForm.innerHTML = `
+                <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                    <div class="mt-3 text-center">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Verify Your Payment</h3>
+                        <div class="mt-2 px-7 py-3">
+                            <p class="text-sm text-gray-500">
+                                Please enter the transaction ID or reference number from your payment confirmation.
+                            </p>
+                            <input type="text" id="transactionId" class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Transaction ID or Reference">
+                        </div>
+                        <div class="items-center px-4 py-3">
+                            <button id="submitVerification" class="px-4 py-2 bg-blue-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                Verify Payment
+                            </button>
+                            <button id="cancelVerification" class="ml-3 px-4 py-2 bg-gray-200 text-gray-800 text-base font-medium rounded-md shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(verificationForm);
+            
+            // Handle verification submission
+            document.getElementById('submitVerification').addEventListener('click', function() {
+                const transactionId = document.getElementById('transactionId').value.trim();
+                
+                if (!transactionId) {
+                    alert('Please enter a transaction ID or reference number');
+                    return;
+                }
+                
+                // Submit verification
+                fetch('/verify-payment/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        booking_group_id: {{ booking_group.id }},
+                        payment_method: '{{ payment_method }}',
+                        transaction_id: transactionId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        var nextUrl = data.redirect_url || ('/booking-success/?bg=' + encodeURIComponent(String({{ booking_group.id }})));
+                        window.location.href = nextUrl;
+                    } else {
+                        alert(data.message || 'Verification failed. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+            });
+            
+            // Handle cancellation
+            document.getElementById('cancelVerification').addEventListener('click', function() {
+                document.body.removeChild(verificationForm);
+            });
+        });
+    });
+</script>
+{% endblock %} 
